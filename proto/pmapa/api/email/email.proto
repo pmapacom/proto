@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+// Internal (cluster-only) email-send API. Implemented by the notification
+// service, called s2s by trusted peers (e.g. auth → password-reset mail). Not
+// routed through the gateway. Lives under pmapa.api.* with the other internal
+// contracts and is deliberately UNVERSIONED — an internal call, so callers just
+// update in lockstep (buf.yaml waives the version-suffix rule for it).
+package pmapa.api.email;
+
+// Render the named template with `vars` and email it to `to`. Template names are
+// stable identifiers owned by the notification service (its templates/ dir),
+// e.g. "password_reset". Unknown template / missing required var ⇒ InvalidArgument.
+service EmailService {
+  rpc SendEmail(SendEmailRequest) returns (SendEmailResponse);
+}
+
+message SendEmailRequest {
+  string template = 1;            // e.g. "password_reset"
+  string to = 2;                  // recipient email address
+  map<string, string> vars = 3;   // template variables
+}
+message SendEmailResponse {}

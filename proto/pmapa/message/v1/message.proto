@@ -1,0 +1,293 @@
+syntax = "proto3";
+
+// PMapa message service — the messenger: 1:1 and group conversations and their
+// messages. MVP surface is fully unary (send + paged pulls; the client polls an
+// open chat); the server-stream Subscribe and the notifications module land on
+// top of this without breaking it.
+//
+// Identity: the caller is the gateway-injected `X-User-Id` header (a verified
+// auth user id), NOT anything in these messages. Participant profiles are
+// hydrated by the app via `user`'s BatchGetProfiles — no profile data here.
+//
+// Ids are client-generated (conversation and message alike), which makes every
+// write idempotent and lets the offline-first client queue sends and retry
+// safely.
+package pmapa.message.v1;
+
+enum ConversationKind {
+  CONVERSATION_KIND_UNSPECIFIED = 0;
+  CONVERSATION_KIND_DIRECT = 1; // exactly two members
+  CONVERSATION_KIND_GROUP = 2;
+}
+
+// A conversation the caller is a member of, with a last-message preview for
+// the inbox list.
+message Conversation {
+  string id = 1;                 // client-generated stable id
+  ConversationKind kind = 2;
+  string title = 3;              // group name; empty for direct chats
+  repeated string member_ids = 4;
+  string created_by = 5;
+  int64 created_at = 6;          // unix seconds
+  string last_message_text = 7;  // empty when no messages yet
+  string last_message_author_id = 8;
+  int64 last_message_at = 9;     // unix seconds; 0 when no messages yet
+  // true when the newest message carries a photo attachment (the inbox shows
+  // a "📷 Photo" placeholder when its text is empty)
+  bool last_message_has_image = 10;
+  string pinned_message_id = 11; // empty = nothing pinned
+
+  // Group governance — SERVER-ENFORCED state (groups only; zero-values for
+  // direct chats). The creator is always an admin; admin_ids are the
+  // additionally promoted members.
+  bool channel = 12;              // broadcast: only admins may post
+  repeated string admin_ids = 13;
+  bool members_can_send = 14;     // non-admins may post (ignored for channels)
+  bool members_can_add = 15;      // non-admins may add members
+  bool members_can_pin = 16;      // non-admins may pin/unpin
+  string invite_code = 17;        // join key for JoinByInvite (groups only)
+  bool muted = 18;                // the CALLER muted this conversation
+  int32 unread_count = 19;        // messages from others past the CALLER's read cursor
+  int32 retention_seconds = 20;   // disappearing messages: hide older than this (0 = off)
+}
+
+// One emoji's reactors on a message (capped server-side at 50 ids).
+message Reaction {
+  string emoji = 1;
+  repeated string user_ids = 2;
+}
+
+// A chat message. Reactions, edits, deletions and replies are SERVER data:
+// any change bumps the row's updated_at, so `Subscribe` re-pushes the message
+// and every member converges (a deleted message arrives as a tombstone with
+// `deleted = true` and cleared content).
+message Message {
+  string id = 1;               // client-generated stable id (idempotency key)
+  string conversation_id = 2;
+  string author_id = 3;
+  string text = 4;
+  int64 created_at = 5;        // unix seconds, server-set
+  string image_url = 6;        // photo attachment (media-service URL); empty for text-only
+  string reply_to_id = 7;      // quoted message id; empty for top-level messages
+  bool edited = 8;
+  bool deleted = 9;            // tombstone: text/image cleared server-side
+  repeated Reaction reactions = 10;
+}
+
+// Create (or idempotently re-assert) a conversation. The caller is always a
+// member; direct chats must have exactly one other member and are deduplicated
+// per member pair (re-creating returns the existing one). Re-calling with an id
+// the caller is a member of returns it unchanged.
+message CreateConversationRequest {
+  string id = 1;
+  ConversationKind kind = 2;
+  string title = 3;
+  repeated string member_ids = 4; // besides the caller
+}
+message CreateConversationResponse {
+  Conversation conversation = 1;
+}
+
+// The caller's conversations, most recent activity first.
+message ListMyConversationsRequest {
+  string cursor = 1;
+  int32 limit = 2; // 1..100, default 50
+}
+message ListMyConversationsResponse {
+  repeated Conversation conversations = 1;
+  string next_cursor = 2;
+}
+
+// Send a message into a conversation the caller is a member of. Idempotent by
+// message id — re-sending returns the already-stored message. At least one of
+// `text` / `image_url` must be set.
+message SendMessageRequest {
+  string conversation_id = 1;
+  string id = 2;
+  string text = 3;
+  string image_url = 4;        // photo attachment (media-service URL)
+  string reply_to_id = 5;      // id of the message being replied to (optional)
+}
+message SendMessageResponse {
+  Message message = 1;
+}
+
+// A conversation's messages, NEWEST first with keyset pagination (the client
+// reverses for display and polls the first page for new messages).
+message ListMessagesRequest {
+  string conversation_id = 1;
+  string cursor = 2;
+  int32 limit = 3; // 1..200, default 50
+}
+message ListMessagesResponse {
+  repeated Message messages = 1;
+  string next_cursor = 2;
+  // Read receipt: the moment up to which EVERY other member has read this
+  // conversation (unix seconds; 0 until all have read at least once). The
+  // sender's messages created at/before it render as "read".
+  int64 peer_read_at = 3;
+}
+
+// Full-text-ish search over a conversation's message bodies (case-insensitive
+// substring), NEWEST match first with keyset pagination. Members only;
+// tombstones (deleted messages) are excluded.
+message SearchMessagesRequest {
+  string conversation_id = 1;
+  string query = 2;          // substring to match in the message body
+  string cursor = 3;
+  int32 limit = 4;           // 1..100, default 30
+}
+message SearchMessagesResponse {
+  repeated Message messages = 1;
+  string next_cursor = 2;
+}
+
+// Mark the conversation read for the caller (up to now). Idempotent; backs
+// read receipts for the other members.
+message MarkReadRequest {
+  string conversation_id = 1;
+}
+message MarkReadResponse {}
+
+// Toggle-style reactions: React adds the caller's emoji on a message in a
+// conversation they belong to; Unreact removes it. Both idempotent.
+message ReactRequest {
+  string message_id = 1;
+  string emoji = 2;
+}
+message ReactResponse {}
+message UnreactRequest {
+  string message_id = 1;
+  string emoji = 2;
+}
+message UnreactResponse {}
+
+// Edit the caller's OWN message (author-only; marks it `edited`).
+message EditMessageRequest {
+  string id = 1;
+  string text = 2;
+}
+message EditMessageResponse {
+  Message message = 1;
+}
+
+// Delete the caller's OWN message (author-only; idempotent). The row becomes
+// a tombstone (`deleted = true`, content cleared) so every member converges.
+message DeleteMessageRequest {
+  string id = 1;
+}
+message DeleteMessageResponse {}
+
+// Pin a message in a conversation the caller belongs to (any member; one pin
+// per conversation). An empty message_id unpins.
+message PinMessageRequest {
+  string conversation_id = 1;
+  string message_id = 2;
+}
+message PinMessageResponse {}
+
+// Server push: opens a long-lived stream of every new OR CHANGED message
+// (edits, deletions, reactions bump updated_at) in ANY of the caller's
+// conversations. Replaces the poll.
+message SubscribeRequest {}
+message SubscribeEvent {
+  Message message = 1;
+}
+
+// Add members to a group conversation (idempotent; caller must be a member).
+message AddMembersRequest {
+  string conversation_id = 1;
+  repeated string member_ids = 2;
+}
+message AddMembersResponse {
+  Conversation conversation = 1;
+}
+
+// Leave a conversation (idempotent).
+message LeaveConversationRequest {
+  string conversation_id = 1;
+}
+message LeaveConversationResponse {}
+
+// Admin-only: replace a GROUP conversation's settings. An empty title keeps
+// the current one; the flags always replace (the client sends full state).
+message UpdateConversationRequest {
+  string conversation_id = 1;
+  string title = 2;
+  bool channel = 3;
+  bool members_can_send = 4;
+  bool members_can_add = 5;
+  bool members_can_pin = 6;
+  int32 retention_seconds = 7;   // disappearing messages (0 = off)
+}
+message UpdateConversationResponse {
+  Conversation conversation = 1;
+}
+
+// Admin-only: promote/demote a member. The creator cannot be demoted.
+message SetAdminRequest {
+  string conversation_id = 1;
+  string user_id = 2;
+  bool admin = 3;
+}
+message SetAdminResponse {
+  Conversation conversation = 1;
+}
+
+// Admin-only: remove a member (idempotent). The creator cannot be removed.
+message RemoveMemberRequest {
+  string conversation_id = 1;
+  string user_id = 2;
+}
+message RemoveMemberResponse {
+  Conversation conversation = 1;
+}
+
+// Mute/unmute the conversation FOR THE CALLER (any member; idempotent).
+// Muted members receive no message.new notifications; messages still flow.
+message MuteConversationRequest {
+  string conversation_id = 1;
+  bool muted = 2;
+}
+message MuteConversationResponse {}
+
+// Join a group by its invite code (idempotent — already a member is fine).
+message JoinByInviteRequest {
+  string invite_code = 1;
+}
+message JoinByInviteResponse {
+  Conversation conversation = 1;
+}
+
+// OWNER-only: hand the group to another member. The previous owner stays a
+// promoted admin (and can then leave); the new owner becomes untouchable.
+message TransferOwnershipRequest {
+  string conversation_id = 1;
+  string user_id = 2;
+}
+message TransferOwnershipResponse {
+  Conversation conversation = 1;
+}
+
+service MessageService {
+  rpc CreateConversation(CreateConversationRequest) returns (CreateConversationResponse);
+  rpc ListMyConversations(ListMyConversationsRequest) returns (ListMyConversationsResponse);
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+  rpc ListMessages(ListMessagesRequest) returns (ListMessagesResponse);
+  rpc SearchMessages(SearchMessagesRequest) returns (SearchMessagesResponse);
+  rpc MarkRead(MarkReadRequest) returns (MarkReadResponse);
+  rpc React(ReactRequest) returns (ReactResponse);
+  rpc Unreact(UnreactRequest) returns (UnreactResponse);
+  rpc EditMessage(EditMessageRequest) returns (EditMessageResponse);
+  rpc DeleteMessage(DeleteMessageRequest) returns (DeleteMessageResponse);
+  rpc PinMessage(PinMessageRequest) returns (PinMessageResponse);
+  rpc Subscribe(SubscribeRequest) returns (stream SubscribeEvent);
+  rpc AddMembers(AddMembersRequest) returns (AddMembersResponse);
+  rpc LeaveConversation(LeaveConversationRequest) returns (LeaveConversationResponse);
+  rpc UpdateConversation(UpdateConversationRequest) returns (UpdateConversationResponse);
+  rpc SetAdmin(SetAdminRequest) returns (SetAdminResponse);
+  rpc RemoveMember(RemoveMemberRequest) returns (RemoveMemberResponse);
+  rpc MuteConversation(MuteConversationRequest) returns (MuteConversationResponse);
+  rpc JoinByInvite(JoinByInviteRequest) returns (JoinByInviteResponse);
+  rpc TransferOwnership(TransferOwnershipRequest) returns (TransferOwnershipResponse);
+}

@@ -1,0 +1,25 @@
+version: v2
+
+# Go import path for generated messages: github.com/pmapacom/proto/gen/go/...
+# (gen/go is its own module; services consume it via a go.work workspace.)
+managed:
+  enabled: true
+  override:
+    - file_option: go_package_prefix
+      value: github.com/pmapacom/proto/gen/go
+
+plugins:
+  # Go protobuf messages + Connect service stubs (server & client). Local
+  # plugins (installed via `go install`) — no BSR / network at generate time.
+  - local: protoc-gen-go
+    out: gen/go
+    opt: paths=source_relative
+  - local: protoc-gen-connect-go
+    out: gen/go
+    opt: paths=source_relative
+
+  # Dart protobuf message + enum classes (no gRPC/Connect service stubs — the
+  # app calls AuthService through a hand-rolled DPoP transport). Pulled into
+  # app/ as the `pmapa_proto` package.
+  - local: protoc-gen-dart
+    out: gen/dart/lib/src

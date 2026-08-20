@@ -1,0 +1,264 @@
+syntax = "proto3";
+
+// PMapa user service — public identity & the social graph. It owns the public
+// profile (display name, @handle, bio, avatar) and the follower/following graph,
+// plus people discovery and search. Credentials and the canonical user id live
+// in `auth`; this service never sees passwords or tokens.
+//
+// Identity: the caller is identified by the gateway-injected `X-User-Id` header
+// (a verified auth user id), NOT by anything in these messages. Self-scoped RPCs
+// (GetMyProfile/UpdateMyProfile/Follow/…) read it from the header. A profile is
+// provisioned lazily on the caller's first authenticated request.
+package pmapa.user.v1;
+
+// A public profile. Viewer-relative fields (`viewer_following`, `is_me`) are
+// filled from the gateway-injected caller id.
+message Profile {
+  string user_id = 1;       // = the auth user id
+  string handle = 2;        // unique public handle, e.g. "alex" (no leading @)
+  string display_name = 3;
+  string bio = 4;
+  string avatar_url = 5;    // resolved media URL (a media_id reference later)
+  bool is_private = 6;      // profile visibility flag
+  int64 created_at = 7;     // unix seconds
+  int64 follower_count = 8;
+  int64 following_count = 9;
+  bool viewer_following = 10; // whether the calling user follows this profile
+  bool is_me = 11;            // whether this profile is the calling user's own
+  // whether the caller has a PENDING follow request to this (private) profile
+  bool viewer_requested = 12;
+  // whether this user is a moderator (set only on GetMyProfile; drives the
+  // in-app moderation surface). Configured via USER_ADMIN_IDS.
+  bool is_admin = 13;
+  string current_location = 14;  // free-text "Tokyo, Japan"; empty when unset
+}
+
+// A page of profiles. `next_cursor` is empty when there are no more results;
+// pass it back as the request `cursor` to fetch the next page.
+message ProfilePage {
+  repeated Profile profiles = 1;
+  string next_cursor = 2;
+}
+
+// Return the caller's own profile, provisioning an empty one on first call.
+message GetMyProfileRequest {}
+message GetMyProfileResponse {
+  Profile profile = 1;
+}
+
+// Edit the caller's own profile. Patch semantics: only PRESENT fields are
+// applied, absent fields are left untouched. Fields are `optional`, so the
+// server distinguishes "not sent" (leave as-is) from "sent as empty/false"
+// (write it — e.g. clearing bio, or setting is_private=false). `handle` must be
+// unique or the call fails with AlreadyExists.
+message UpdateMyProfileRequest {
+  optional string display_name = 1;
+  optional string bio = 2;
+  optional string avatar_url = 3;
+  optional string handle = 4;
+  optional bool is_private = 5;
+  optional string current_location = 6;
+}
+message UpdateMyProfileResponse {
+  Profile profile = 1;
+}
+
+// Fetch another user's public profile by id or handle (exactly one set).
+message GetProfileRequest {
+  string user_id = 1;
+  string handle = 2;
+}
+message GetProfileResponse {
+  Profile profile = 1;
+}
+
+// Hydrate many profiles at once (feeds, chat participants, connection lists).
+// Missing/unknown ids are simply omitted from the response.
+message BatchGetProfilesRequest {
+  repeated string user_ids = 1;
+}
+message BatchGetProfilesResponse {
+  repeated Profile profiles = 1;
+}
+
+// Follow the given user (idempotent; self-follow is rejected). Following a
+// PRIVATE profile queues a follow request instead of creating the edge —
+// `requested` is true in that case; the target approves or declines it.
+message FollowRequest {
+  string user_id = 1;
+}
+message FollowResponse {
+  bool requested = 1; // true = queued as a request (target is private)
+}
+
+// Stop following the given user (idempotent). Also cancels the caller's
+// pending follow request to that user, if any.
+message UnfollowRequest {
+  string user_id = 1;
+}
+message UnfollowResponse {}
+
+// Incoming follow requests to the CALLER's (private) profile, newest first.
+message ListFollowRequestsRequest {
+  string cursor = 1;
+  int32 limit = 2; // 1..100, default 20
+}
+message ListFollowRequestsResponse {
+  ProfilePage page = 1;
+}
+
+// Approve a pending request: the requester becomes a follower (idempotent —
+// approving a non-existent request is a no-op).
+message ApproveFollowRequest {
+  string user_id = 1; // the requester
+}
+message ApproveFollowResponse {}
+
+// Decline (drop) a pending request without following back (idempotent).
+message DeclineFollowRequest {
+  string user_id = 1; // the requester
+}
+message DeclineFollowResponse {}
+
+// People who follow `user_id` (defaults to the caller when empty).
+message ListFollowersRequest {
+  string user_id = 1;
+  string cursor = 2;
+  int32 limit = 3; // 1..100, default 20
+}
+message ListFollowersResponse {
+  ProfilePage page = 1;
+}
+
+// People `user_id` follows (defaults to the caller when empty).
+message ListFollowingRequest {
+  string user_id = 1;
+  string cursor = 2;
+  int32 limit = 3; // 1..100, default 20
+}
+message ListFollowingResponse {
+  ProfilePage page = 1;
+}
+
+// Block the given user (idempotent; self-block rejected). Blocking removes
+// follow edges in BOTH directions immediately; while the block stands neither
+// side can follow the other, and each disappears from the other's search
+// results. Existing content (messages already sent, etc.) is not rewritten.
+message BlockUserRequest {
+  string user_id = 1;
+}
+message BlockUserResponse {}
+
+// Lift the caller's block on the given user (idempotent). Follows are NOT
+// restored — both sides start from a clean slate.
+message UnblockUserRequest {
+  string user_id = 1;
+}
+message UnblockUserResponse {}
+
+// The caller's blocked users, newest block first.
+message ListBlockedRequest {
+  string cursor = 1;
+  int32 limit = 2; // 1..100, default 20
+}
+message ListBlockedResponse {
+  ProfilePage page = 1;
+}
+
+// Is a handle free to claim? Backs the settings handle editor.
+message CheckHandleRequest {
+  string handle = 1;
+}
+message CheckHandleResponse {
+  bool available = 1;
+}
+
+// Find people by name or @handle. An empty query returns discovery suggestions,
+// so this backs both find-profile and the "discover people" list.
+message SearchProfilesRequest {
+  string query = 1;
+  string cursor = 2;
+  int32 limit = 3; // 1..100, default 20
+}
+message SearchProfilesResponse {
+  ProfilePage page = 1;
+}
+
+// Report abusive content for moderation. target_type is one of
+// "user" | "post" | "message" | "listing"; reason is a stable code
+// (e.g. "spam", "harassment", "nudity", "other"); details is optional free
+// text. Idempotent per (reporter, target): re-reporting refreshes it.
+message ReportContentRequest {
+  string target_type = 1;
+  string target_id = 2;
+  string reason = 3;
+  string details = 4;
+}
+message ReportContentResponse {}
+
+// A moderation report (admin-only view). status is one of
+// "open" | "reviewing" | "resolved".
+message Report {
+  string id = 1;
+  string reporter_id = 2;
+  string target_type = 3;
+  string target_id = 4;
+  string reason = 5;
+  string details = 6;
+  string status = 7;
+  int64 created_at = 8;      // unix seconds
+}
+
+// List reports for the moderation queue (ADMIN-only; caller must be in
+// USER_ADMIN_IDS). Empty status ⇒ all; otherwise filter by status.
+message ListReportsRequest {
+  string status = 1;
+  string cursor = 2;
+  int32 limit = 3;           // 1..100, default 50
+}
+message ListReportsResponse {
+  repeated Report reports = 1;
+  string next_cursor = 2;
+}
+
+// Move a report to a new status (ADMIN-only).
+message ResolveReportRequest {
+  string id = 1;
+  string status = 2;         // reviewing | resolved | open
+}
+message ResolveReportResponse {}
+
+service UserService {
+  // Own profile (caller = gateway X-User-Id).
+  rpc GetMyProfile(GetMyProfileRequest) returns (GetMyProfileResponse);
+  rpc UpdateMyProfile(UpdateMyProfileRequest) returns (UpdateMyProfileResponse);
+
+  // Other profiles.
+  rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
+  rpc BatchGetProfiles(BatchGetProfilesRequest) returns (BatchGetProfilesResponse);
+
+  // Social graph.
+  rpc Follow(FollowRequest) returns (FollowResponse);
+  rpc Unfollow(UnfollowRequest) returns (UnfollowResponse);
+  rpc ListFollowers(ListFollowersRequest) returns (ListFollowersResponse);
+  rpc ListFollowing(ListFollowingRequest) returns (ListFollowingResponse);
+
+  // Follow requests (private profiles).
+  rpc ListFollowRequests(ListFollowRequestsRequest) returns (ListFollowRequestsResponse);
+  rpc ApproveFollow(ApproveFollowRequest) returns (ApproveFollowResponse);
+  rpc DeclineFollow(DeclineFollowRequest) returns (DeclineFollowResponse);
+
+  // Blocking.
+  rpc BlockUser(BlockUserRequest) returns (BlockUserResponse);
+  rpc UnblockUser(UnblockUserRequest) returns (UnblockUserResponse);
+  rpc ListBlocked(ListBlockedRequest) returns (ListBlockedResponse);
+  rpc ReportContent(ReportContentRequest) returns (ReportContentResponse);
+
+  // Moderation (ADMIN-only — caller must be in USER_ADMIN_IDS).
+  rpc ListReports(ListReportsRequest) returns (ListReportsResponse);
+  rpc ResolveReport(ResolveReportRequest) returns (ResolveReportResponse);
+
+  // Discovery.
+  rpc CheckHandle(CheckHandleRequest) returns (CheckHandleResponse);
+  rpc SearchProfiles(SearchProfilesRequest) returns (SearchProfilesResponse);
+}

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+// Shared cross-cutting API implemented by every service that stores user-owned
+// data (user, travel, post, message, media). Lives under pmapa.api.* — the home
+// for contracts many services implement identically. Deliberately UNVERSIONED:
+// the contract is trivial and stable (an empty, self-scoped erase), so a version
+// suffix would only be noise. If it ever needs to evolve incompatibly, move it
+// to pmapa.api.purge.v2.
+package pmapa.api.purge;
+
+// PurgeService erases the caller's data in one service (GDPR "delete my data").
+//
+// The account service (auth) fans this out during account deletion, calling it
+// s2s on each service's direct URL. The request is empty by design: the target
+// user is taken from the gateway/s2s-injected X-User-Id, so a service can only
+// ever erase the *caller's own* data. Internal-only — never exposed through the
+// public gateway.
+service PurgeService {
+  rpc PurgeUser(PurgeUserRequest) returns (PurgeUserResponse);
+}
+
+message PurgeUserRequest {}
+message PurgeUserResponse {}

@@ -1,0 +1,5 @@
+# generated Dart build cache
+gen/dart/.dart_tool/
+# IDE / OS
+.idea/
+.DS_Store

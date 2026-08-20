@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+// PMapa stats service — the metrics store. Services PUSH named metrics into it
+// (fire-and-forget) and read them back by name; the values live in Redis.
+//
+// The contract is deliberately tiny: `Set(name, value)` / `Get(name) → value`
+// plus `Inc(name, delta)` — counters MUST use Inc (atomic INCRBY server-side);
+// Set is for gauges/absolute values and last-write-wins.
+//
+// Metric names are dot-separated, lowest cardinality first, e.g.
+// "messages.sent", "posts.likes.<post_id>", "users.followers.<user_id>".
+//
+// Exposure: INTERNAL-ONLY. Every RPC (reads included) is called service-to-
+// service by trusted cluster peers and is NOT routed through the gateway, so
+// clients can neither forge nor read metrics. Lives under pmapa.api.* and is
+// UNVERSIONED by design (buf.yaml waives the version-suffix rule for it).
+package pmapa.api.stats;
+
+// Overwrite the metric with an absolute value (gauge semantics).
+message SetRequest {
+  string name = 1;
+  int64 value = 2;
+}
+message SetResponse {}
+
+// Atomically add `delta` to the metric (counter semantics; missing metric
+// starts from 0). delta 0 counts as 1; negative deltas decrement.
+message IncRequest {
+  string name = 1;
+  int64 delta = 2;
+}
+message IncResponse {
+  int64 value = 1;  // the value after the increment
+}
+
+message GetRequest {
+  string name = 1;
+}
+message GetResponse {
+  int64 value = 1;  // 0 when the metric does not exist
+  bool found = 2;   // distinguishes "0" from "never written"
+}
+
+// Read many metrics in one round-trip (e.g. hydrating a profile's counters).
+message BatchGetRequest {
+  repeated string names = 1;
+}
+message BatchGetResponse {
+  map<string, int64> values = 1;  // missing metrics are absent from the map
+}
+
+// Enumerate metrics by name prefix — the dashboard's "show me everything"
+// call. Empty prefix lists all (capped at `limit`, default 100, max 1000).
+message ListRequest {
+  string prefix = 1;
+  int32 limit = 2;
+}
+message ListResponse {
+  map<string, int64> values = 1;
+}
+
+service StatsService {
+  rpc Set(SetRequest) returns (SetResponse);
+  rpc Inc(IncRequest) returns (IncResponse);
+  rpc Get(GetRequest) returns (GetResponse);
+  rpc BatchGet(BatchGetRequest) returns (BatchGetResponse);
+  rpc List(ListRequest) returns (ListResponse);
+}

@@ -1,0 +1,150 @@
+syntax = "proto3";
+
+// PMapa store service — the marketplace, unrelated to travel history. Owns
+// goods classifieds (Avito-style listings with price, category, location and a
+// photo gallery) and the caller's favourites/bookmarks. One service, not
+// one-per-category: category is data.
+//
+// Identity: the caller is the gateway-injected `X-User-Id` header (a verified
+// auth user id), NOT anything in these messages — same pattern as the other
+// domain services. Seller profiles are hydrated by the app via `user`.
+//
+// The caller's OWN listings sync like trips/posts (offline-first: queued
+// mutations → PutGood/DeleteGood, authoritative pull → ListMyGoods); favourites
+// are a synced set of good ids (SaveGood/UnsaveGood ↔ ListSavedGoodIds).
+package pmapa.store.v1;
+
+// Condition of a second-hand good.
+enum GoodCondition {
+  GOOD_CONDITION_UNSPECIFIED = 0;
+  GOOD_CONDITION_NEW = 1;
+  GOOD_CONDITION_USED = 2;
+}
+
+// A classified-ad listing. Viewer-relative fields (`viewer_saved`, `is_mine`)
+// are filled from the gateway-injected caller id.
+message Good {
+  string id = 1;            // client-generated stable id (idempotency key)
+  string seller_id = 2;     // auth user id of the seller (server-enforced)
+  string title = 3;
+  string description = 4;
+  int64 price_cents = 5;    // whole price in minor units (avoids float money)
+  string currency = 6;      // e.g. "$", "€" — display symbol for now
+  string category_id = 7;   // matches the app's GoodCategory.id
+  string location = 8;      // human label, e.g. "Tokyo, Shibuya"
+  repeated string image_urls = 9; // first is the thumbnail (media URLs later)
+  GoodCondition condition = 10;
+  double lat = 11;          // normalised 0..1 map position (schematic map)
+  double lng = 12;
+  int64 created_at = 13;    // unix seconds, server-set on first write
+  int64 updated_at = 14;    // unix seconds, server-set on each write
+  bool viewer_saved = 15;
+  bool is_mine = 16;
+}
+
+// A page of goods. `next_cursor` is empty when there are no more results.
+message GoodPage {
+  repeated Good goods = 1;
+  string next_cursor = 2;
+}
+
+// ---- own listings (offline-first sync) -------------------------------------
+
+// The caller's live listings, newest write first.
+message ListMyGoodsRequest {
+  string cursor = 1;
+  int32 limit = 2; // 1..200, default 100
+}
+message ListMyGoodsResponse {
+  repeated Good goods = 1;
+  string next_cursor = 2;
+}
+
+// Upsert the caller's listing by id (idempotent). Fails with AlreadyExists if
+// the id belongs to another user's listing.
+message PutGoodRequest {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  int64 price_cents = 4;
+  string currency = 5;
+  string category_id = 6;
+  string location = 7;
+  repeated string image_urls = 8;
+  GoodCondition condition = 9;
+  double lat = 10;
+  double lng = 11;
+}
+message PutGoodResponse {
+  Good good = 1;
+}
+
+// Delete the caller's listing by id (idempotent; soft-delete).
+message DeleteGoodRequest {
+  string id = 1;
+}
+message DeleteGoodResponse {}
+
+// ---- browsing --------------------------------------------------------------
+
+// Fetch one live listing by id.
+message GetGoodRequest {
+  string id = 1;
+}
+message GetGoodResponse {
+  Good good = 1;
+}
+
+// Browse/search live listings, newest first. All filters are optional and
+// combine: `query` matches title/description/location (case-insensitive),
+// `category_id` an exact category, `condition` an exact condition.
+message ListGoodsRequest {
+  string query = 1;
+  string category_id = 2;
+  GoodCondition condition = 3;
+  string cursor = 4;
+  int32 limit = 5; // 1..100, default 20
+}
+message ListGoodsResponse {
+  GoodPage page = 1;
+}
+
+// ---- favourites ------------------------------------------------------------
+
+// Bookmark / unbookmark a good id (both idempotent). The id is stored as an
+// opaque marker — it need not reference a live listing, so the offline-first
+// favourites sync never fails on ids the server doesn't know (e.g. seed data).
+message SaveGoodRequest {
+  string good_id = 1;
+}
+message SaveGoodResponse {}
+message UnsaveGoodRequest {
+  string good_id = 1;
+}
+message UnsaveGoodResponse {}
+
+// The caller's favourite good ids, most recently saved first.
+message ListSavedGoodIdsRequest {
+  string cursor = 1;
+  int32 limit = 2; // 1..500, default 200
+}
+message ListSavedGoodIdsResponse {
+  repeated string good_ids = 1;
+  string next_cursor = 2;
+}
+
+service StoreService {
+  // own listings (offline-first sync)
+  rpc ListMyGoods(ListMyGoodsRequest) returns (ListMyGoodsResponse);
+  rpc PutGood(PutGoodRequest) returns (PutGoodResponse);
+  rpc DeleteGood(DeleteGoodRequest) returns (DeleteGoodResponse);
+
+  // browsing
+  rpc GetGood(GetGoodRequest) returns (GetGoodResponse);
+  rpc ListGoods(ListGoodsRequest) returns (ListGoodsResponse);
+
+  // favourites
+  rpc SaveGood(SaveGoodRequest) returns (SaveGoodResponse);
+  rpc UnsaveGood(UnsaveGoodRequest) returns (UnsaveGoodResponse);
+  rpc ListSavedGoodIds(ListSavedGoodIdsRequest) returns (ListSavedGoodIdsResponse);
+}

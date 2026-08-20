@@ -1,0 +1,24 @@
+version: v2
+modules:
+  - path: proto
+lint:
+  use:
+    - STANDARD
+  # Our package is pmapa.<service>.v1; files live under proto/pmapa/... .
+  # Subscribe is a SERVER STREAM: its payload is an event, not a response.
+  # Renaming SubscribeEvent -> SubscribeResponse would touch the Go service and
+  # the Dart client, so the naming rule is waived for this one file.
+  ignore_only:
+    RPC_RESPONSE_STANDARD_NAME:
+      - proto/pmapa/message/v1/message.proto
+    # pmapa.api.* are deliberately UNVERSIONED internal s2s contracts (see each
+    # file header) — internal callers update in lockstep, so the version-suffix
+    # rule is waived for them.
+    PACKAGE_VERSION_SUFFIX:
+      - proto/pmapa/api/purge/purge.proto
+      - proto/pmapa/api/email/email.proto
+      - proto/pmapa/api/notify/notify.proto
+      - proto/pmapa/api/stats/stats.proto
+breaking:
+  use:
+    - FILE

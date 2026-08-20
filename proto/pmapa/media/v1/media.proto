@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+// PMapa media service — the shared image pipeline. MVP: authenticated upload
+// into Postgres (size-capped), public read via plain `GET /media/{id}` (routed
+// by the gateway without auth so `Image.network` works). Every other service
+// stores only the returned URL; none of them handle bytes. S3/CDN replaces the
+// Postgres blob store behind the same contract later.
+//
+// Identity: the caller is the gateway-injected `X-User-Id` header.
+package pmapa.media.v1;
+
+// Upload one image (max 5 MiB; content types image/jpeg|png|webp|gif).
+message UploadImageRequest {
+  bytes data = 1;
+  string content_type = 2;
+}
+message UploadImageResponse {
+  string id = 1;   // server-generated unguessable id
+  string url = 2;  // gateway-relative, e.g. "/media/<id>" — prefix with the API base URL
+}
+
+// Delete an image the caller uploaded (idempotent).
+message DeleteImageRequest {
+  string id = 1;
+}
+message DeleteImageResponse {}
+
+service MediaService {
+  rpc UploadImage(UploadImageRequest) returns (UploadImageResponse);
+  rpc DeleteImage(DeleteImageRequest) returns (DeleteImageResponse);
+}

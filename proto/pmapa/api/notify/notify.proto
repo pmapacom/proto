@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+// Internal (cluster-only) in-app event fan-in. Implemented by the notification
+// service, called s2s by emitters (message / post / user) when something worth
+// notifying happens. The notification service OWNS what happens next (feed,
+// push, digests, per-user prefs); emitters only name the event + recipients.
+// Not routed through the gateway; UNVERSIONED (internal contract).
+package pmapa.api.notify;
+
+// A fire-and-forget in-app event from a trusted peer, e.g. "message.new".
+service NotifyService {
+  rpc Notify(NotifyRequest) returns (NotifyResponse);
+}
+
+message NotifyRequest {
+  string type = 1;                // stable event name, e.g. "message.new"
+  repeated string user_ids = 2;   // recipient auth user ids
+  string actor_id = 3;            // who triggered the event
+  map<string, string> data = 4;   // payload, e.g. conversation_id / message_id / preview
+}
+message NotifyResponse {}

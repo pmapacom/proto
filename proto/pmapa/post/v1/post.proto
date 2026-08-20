@@ -1,0 +1,276 @@
+syntax = "proto3";
+
+// PMapa post service — social/UGC content and engagement. It owns posts
+// (type route / recommendation / post), reviews of places & routes, and the
+// engagement around them: likes, saves/bookmarks and comments. The reader feed
+// is assembled over the follow graph fetched from the `user` service.
+//
+// Identity: the caller is the gateway-injected `X-User-Id` header (a verified
+// auth user id), NOT anything in these messages — same pattern as `user` and
+// `travel`. Author profiles are NOT embedded here: the app hydrates them via
+// `user`'s BatchGetProfiles, keeping this service free of profile data.
+//
+// The caller's OWN posts sync like trips do (offline-first PostsRepository:
+// queued create/update/delete mutations → PutPost/DeletePost, authoritative
+// pull → ListMyPosts).
+package pmapa.post.v1;
+
+// What kind of content a post is.
+enum PostType {
+  POST_TYPE_UNSPECIFIED = 0;
+  POST_TYPE_POST = 1;           // a plain post
+  POST_TYPE_ROUTE = 2;          // a published route / itinerary guide
+  POST_TYPE_RECOMMENDATION = 3; // a place/route recommendation
+}
+
+// A post. Viewer-relative fields (`viewer_liked`, `viewer_saved`, `is_mine`)
+// are filled from the gateway-injected caller id; counts come from engagement.
+message Post {
+  string id = 1;          // client-generated stable id (also the idempotency key)
+  string author_id = 2;   // auth user id of the author (server-enforced)
+  PostType type = 3;
+  string text = 4;
+  string place = 5;       // country/city context label, e.g. "Kyoto, Japan"
+  string image_url = 6;   // resolved media URL (a media_id reference later)
+  int64 created_at = 7;   // unix seconds, server-set on first write
+  int64 updated_at = 8;   // unix seconds, server-set on each write
+  int64 like_count = 9;
+  int64 save_count = 10;
+  int64 comment_count = 11;
+  bool viewer_liked = 12;
+  bool viewer_saved = 13;
+  bool is_mine = 14;
+}
+
+// A page of posts. `next_cursor` is empty when there are no more results; pass
+// it back as the request `cursor` to fetch the next page.
+message PostPage {
+  repeated Post posts = 1;
+  string next_cursor = 2;
+}
+
+// A comment on a post. Author profiles are hydrated via `user`.
+message Comment {
+  string id = 1;         // server-generated
+  string post_id = 2;
+  string author_id = 3;
+  string text = 4;
+  int64 created_at = 5;  // unix seconds, server-set
+}
+
+// A review of a place or route (travel UGC; product reviews live in `store`).
+// `subject` is a free-form stable key the client derives, e.g. "place:JP/Kyoto"
+// or "route:<route-post-id>" — the service treats it opaquely.
+message Review {
+  string id = 1;         // client-generated stable id (idempotency key)
+  string author_id = 2;
+  string subject = 3;
+  int32 rating = 4;      // 1..5
+  string text = 5;
+  int64 created_at = 6;  // unix seconds, server-set on first write
+  int64 updated_at = 7;  // unix seconds, server-set on each write
+  bool is_mine = 8;
+}
+
+// ---- own posts (offline-first sync, mirrors travel) ------------------------
+
+// List the caller's own posts, newest write first.
+message ListMyPostsRequest {
+  string cursor = 1;
+  int32 limit = 2; // 1..200, default 100
+}
+message ListMyPostsResponse {
+  repeated Post posts = 1;
+  string next_cursor = 2;
+}
+
+// Upsert the caller's post by id (idempotent). Creates it on first write,
+// replaces the content on subsequent ones. Fails with AlreadyExists if the id
+// belongs to another user's post.
+message PutPostRequest {
+  string id = 1;
+  PostType type = 2;
+  string text = 3;
+  string place = 4;
+  string image_url = 5;
+}
+message PutPostResponse {
+  Post post = 1;
+}
+
+// Delete the caller's post by id (idempotent; soft-delete — engagement rows are
+// kept but the post disappears from every list).
+message DeletePostRequest {
+  string id = 1;
+}
+message DeletePostResponse {}
+
+// ---- reading ---------------------------------------------------------------
+
+// Fetch one live post by id.
+message GetPostRequest {
+  string id = 1;
+}
+message GetPostResponse {
+  Post post = 1;
+}
+
+// A user's live posts, newest first (public profile pages). Empty user_id ⇒
+// the caller's own.
+message ListUserPostsRequest {
+  string user_id = 1;
+  string cursor = 2;
+  int32 limit = 3; // 1..100, default 20
+}
+message ListUserPostsResponse {
+  PostPage page = 1;
+}
+
+// The caller's reader feed: live posts by everyone the caller follows (fetched
+// from `user`), newest first.
+message ListFeedRequest {
+  string cursor = 1;
+  int32 limit = 2; // 1..100, default 20
+}
+message ListFeedResponse {
+  PostPage page = 1;
+}
+
+// Posts the caller has saved/bookmarked, most recently saved first.
+message ListSavedPostsRequest {
+  string cursor = 1;
+  int32 limit = 2; // 1..100, default 20
+}
+message ListSavedPostsResponse {
+  PostPage page = 1;
+}
+
+// ---- engagement ------------------------------------------------------------
+
+// Like / unlike a live post (both idempotent).
+message LikePostRequest {
+  string post_id = 1;
+}
+message LikePostResponse {}
+message UnlikePostRequest {
+  string post_id = 1;
+}
+message UnlikePostResponse {}
+
+// Save / unsave (bookmark) a live post (both idempotent).
+message SavePostRequest {
+  string post_id = 1;
+}
+message SavePostResponse {}
+message UnsavePostRequest {
+  string post_id = 1;
+}
+message UnsavePostResponse {}
+
+// Comment on a live post. Returns the stored comment (server id + time).
+message AddCommentRequest {
+  string post_id = 1;
+  string text = 2;
+}
+message AddCommentResponse {
+  Comment comment = 1;
+}
+
+// Delete a comment by id. Allowed for the comment's author and for the author
+// of the post it is on; idempotent.
+message DeleteCommentRequest {
+  string id = 1;
+}
+message DeleteCommentResponse {}
+
+// A post's comments, oldest first (conversation order).
+message ListCommentsRequest {
+  string post_id = 1;
+  string cursor = 2;
+  int32 limit = 3; // 1..100, default 20
+}
+message ListCommentsResponse {
+  repeated Comment comments = 1;
+  string next_cursor = 2;
+}
+
+// ---- reviews ---------------------------------------------------------------
+
+// Upsert the caller's review by id (idempotent). Rating must be 1..5. Fails
+// with AlreadyExists if the id belongs to another user's review.
+message PutReviewRequest {
+  string id = 1;
+  string subject = 2;
+  int32 rating = 3;
+  string text = 4;
+}
+message PutReviewResponse {
+  Review review = 1;
+}
+
+// Delete the caller's review by id (idempotent).
+message DeleteReviewRequest {
+  string id = 1;
+}
+message DeleteReviewResponse {}
+
+// Reviews of one subject, newest first, with the subject's aggregate rating
+// (computed over ALL its live reviews, not just this page).
+message ListReviewsRequest {
+  string subject = 1;
+  string cursor = 2;
+  int32 limit = 3; // 1..100, default 20
+}
+message ListReviewsResponse {
+  repeated Review reviews = 1;
+  string next_cursor = 2;
+  double average_rating = 3; // 0 when the subject has no reviews
+  int64 review_count = 4;
+}
+
+// The caller's own reviews, newest write first.
+message ListMyReviewsRequest {
+  string cursor = 1;
+  int32 limit = 2; // 1..200, default 100
+}
+message ListMyReviewsResponse {
+  repeated Review reviews = 1;
+  string next_cursor = 2;
+}
+
+// The caller's own post-activity totals (for the profile / stats dashboard).
+message GetMyStatsRequest {}
+message GetMyStatsResponse {
+  int64 post_count = 1;         // the caller's non-deleted posts
+  int64 likes_received = 2;     // total likes across those posts
+  int64 comments_received = 3;  // total comments across those posts
+}
+
+service PostService {
+  // own posts (offline-first sync)
+  rpc ListMyPosts(ListMyPostsRequest) returns (ListMyPostsResponse);
+  rpc GetMyStats(GetMyStatsRequest) returns (GetMyStatsResponse);
+  rpc PutPost(PutPostRequest) returns (PutPostResponse);
+  rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
+
+  // reading
+  rpc GetPost(GetPostRequest) returns (GetPostResponse);
+  rpc ListUserPosts(ListUserPostsRequest) returns (ListUserPostsResponse);
+  rpc ListFeed(ListFeedRequest) returns (ListFeedResponse);
+  rpc ListSavedPosts(ListSavedPostsRequest) returns (ListSavedPostsResponse);
+
+  // engagement
+  rpc LikePost(LikePostRequest) returns (LikePostResponse);
+  rpc UnlikePost(UnlikePostRequest) returns (UnlikePostResponse);
+  rpc SavePost(SavePostRequest) returns (SavePostResponse);
+  rpc UnsavePost(UnsavePostRequest) returns (UnsavePostResponse);
+  rpc AddComment(AddCommentRequest) returns (AddCommentResponse);
+  rpc DeleteComment(DeleteCommentRequest) returns (DeleteCommentResponse);
+  rpc ListComments(ListCommentsRequest) returns (ListCommentsResponse);
+
+  // reviews
+  rpc PutReview(PutReviewRequest) returns (PutReviewResponse);
+  rpc DeleteReview(DeleteReviewRequest) returns (DeleteReviewResponse);
+  rpc ListReviews(ListReviewsRequest) returns (ListReviewsResponse);
+  rpc ListMyReviews(ListMyReviewsRequest) returns (ListMyReviewsResponse);
+}

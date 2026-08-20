@@ -1,0 +1,177 @@
+syntax = "proto3";
+
+// PMapa travel service — owns each user's TRIPS (the itineraries shown on the
+// timeline / trip-details / review screens). Own-your-data: a trip is a
+// user-owned document stored and returned verbatim, so the client's trip model
+// can evolve without a proto/DB migration per field. The service enforces
+// ownership (a trip belongs to the gateway-verified caller) and stamps server
+// time; it does NOT interpret the document.
+//
+// Identity: the caller is the gateway-injected `X-User-Id` header (a verified
+// auth user id), NOT anything in these messages — same pattern as `user`. This
+// backs the app's offline-first TripRepository: the client queues create/
+// update/delete mutations and pulls the authoritative list.
+package pmapa.travel.v1;
+
+// A user-owned trip. `document` is the client's canonical JSON for the trip
+// (title, dates, stops, …); the server stores it opaquely and never parses it.
+message Trip {
+  string id = 1;         // client-generated stable id (also the idempotency key)
+  string document = 2;   // canonical trip JSON, owned by the client
+  int64 updated_at = 3;  // unix seconds, server-set on each write
+
+  // Sharing (see ShareTrip/JoinTrip). owner_id is set when the trip is shared
+  // WITH the caller (empty = the caller's own trip); member_ids are the
+  // collaborators (never includes the owner); share_code is set while the
+  // trip is shared (both owner and members see it).
+  string owner_id = 4;
+  repeated string member_ids = 5;
+  string share_code = 6;
+
+  // Delta sync: tombstone marker — only ever true in `since` responses.
+  bool deleted = 7;
+}
+
+// List the caller's trips (own + shared with them), newest write first.
+// `next_cursor` is empty when there are no more; pass it back as `cursor` for
+// the next page. With `since` > 0 the response is a DELTA: every row changed
+// after that unix time, INCLUDING tombstones (`deleted = true`) — pass the
+// max `updated_at` you've seen to pull only changes.
+message ListMyTripsRequest {
+  string cursor = 1;
+  int32 limit = 2; // 1..200, default 100
+  int64 since = 3;
+}
+message ListMyTripsResponse {
+  repeated Trip trips = 1;
+  string next_cursor = 2;
+}
+
+// Upsert a trip by id (idempotent). Creates it on first write, replaces the
+// stored document on subsequent ones. Returns the stored trip with server time.
+message PutTripRequest {
+  string id = 1;
+  string document = 2;
+  // Set when editing a trip you JOINED as a collaborator: the trip's owner_id
+  // (from Trip.owner_id in ListMyTrips). Empty — or your own id — writes YOUR own
+  // trip. Your own trip always wins, so a write is never routed into someone
+  // else's document by an id collision.
+  optional string owner_id = 3;
+}
+message PutTripResponse {
+  Trip trip = 1;
+}
+
+// Delete a trip by id (idempotent — deleting an unknown/already-gone id succeeds).
+message DeleteTripRequest {
+  string id = 1;
+}
+message DeleteTripResponse {}
+
+// ---- visited places --------------------------------------------------------
+// The user's visited collections (countries, cities, …) follow the same
+// own-your-data model as trips, but PER ITEM within a named collection: the
+// client keys each entry (country name, "City|Country", …) and stores its
+// canonical JSON opaquely. `kind` names the collection — e.g.
+// "visited_country", "visited_city" — so new collections need no proto change.
+
+// One entry of a visited collection.
+message VisitedItem {
+  string key = 1;        // client-chosen stable key within the collection
+  string document = 2;   // canonical item JSON, owned by the client
+  int64 updated_at = 3;  // unix seconds, server-set on each write
+  bool deleted = 4;      // tombstone — only ever true in `since` responses
+}
+
+// The caller's live entries of one collection, newest write first. With
+// `since` > 0 the response is a DELTA including tombstones (see ListMyTrips).
+message ListVisitedRequest {
+  string kind = 1;
+  string cursor = 2;
+  int32 limit = 3; // 1..200, default 100
+  int64 since = 4;
+}
+message ListVisitedResponse {
+  repeated VisitedItem items = 1;
+  string next_cursor = 2;
+}
+
+// Upsert one entry by (kind, key) — idempotent.
+message PutVisitedRequest {
+  string kind = 1;
+  string key = 2;
+  string document = 3;
+}
+message PutVisitedResponse {
+  VisitedItem item = 1;
+}
+
+// Delete one entry by (kind, key) — idempotent (soft-delete tombstone).
+message DeleteVisitedRequest {
+  string kind = 1;
+  string key = 2;
+}
+message DeleteVisitedResponse {}
+
+// ---- trip sharing ----------------------------------------------------------
+// The OWNER shares a trip and gets an unguessable code; anyone with the code
+// joins as a COLLABORATOR: the trip appears in their ListMyTrips (owner_id
+// set) and their PutTrip(id) edits the owner's document. Collaborators can't
+// delete the trip — DeleteTrip from a collaborator just leaves it.
+
+// Owner-only: share the trip (idempotent — returns the existing code).
+message ShareTripRequest {
+  string id = 1;
+}
+message ShareTripResponse {
+  string share_code = 1;
+}
+
+// Owner-only: stop sharing — revokes the code AND removes all collaborators.
+message UnshareTripRequest {
+  string id = 1;
+}
+message UnshareTripResponse {}
+
+// Join a shared trip by its code (idempotent).
+message JoinTripRequest {
+  string share_code = 1;
+}
+message JoinTripResponse {
+  Trip trip = 1;
+}
+
+// Collaborator: leave a trip shared with you (idempotent).
+message LeaveTripRequest {
+  string id = 1;
+  // The owner of the shared trip you're leaving (from Trip.owner_id). Scopes the
+  // removal to that one trip; empty removes your membership for this id when it's
+  // unambiguous.
+  optional string owner_id = 2;
+}
+message LeaveTripResponse {}
+
+// Owner-only: remove a collaborator (idempotent).
+message RemoveTripMemberRequest {
+  string id = 1;
+  string user_id = 2;
+}
+message RemoveTripMemberResponse {}
+
+service TravelService {
+  rpc ListMyTrips(ListMyTripsRequest) returns (ListMyTripsResponse);
+  rpc PutTrip(PutTripRequest) returns (PutTripResponse);
+  rpc DeleteTrip(DeleteTripRequest) returns (DeleteTripResponse);
+
+  // Trip sharing / collaboration.
+  rpc ShareTrip(ShareTripRequest) returns (ShareTripResponse);
+  rpc UnshareTrip(UnshareTripRequest) returns (UnshareTripResponse);
+  rpc JoinTrip(JoinTripRequest) returns (JoinTripResponse);
+  rpc LeaveTrip(LeaveTripRequest) returns (LeaveTripResponse);
+  rpc RemoveTripMember(RemoveTripMemberRequest) returns (RemoveTripMemberResponse);
+
+  // Visited collections (countries / cities / future kinds).
+  rpc ListVisited(ListVisitedRequest) returns (ListVisitedResponse);
+  rpc PutVisited(PutVisitedRequest) returns (PutVisitedResponse);
+  rpc DeleteVisited(DeleteVisitedRequest) returns (DeleteVisitedResponse);
+}

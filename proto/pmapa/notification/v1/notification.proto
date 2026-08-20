@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+// PMapa notification service — owns outbound notifications and the in-app
+// activity feed read-model. The internal write path (email delivery, event
+// fan-in) moved to the unversioned s2s contracts pmapa.api.email.EmailService
+// and pmapa.api.notify.NotifyService; THIS service is the END-USER surface
+// (feed, prefs, device tokens), routed through the gateway behind auth.
+package pmapa.notification.v1;
+
+// A stored in-app notification for one recipient — the read-model behind the
+// activity feed. Rendered client-side by `type` (the actor is hydrated to a
+// profile via the user service; `data` carries any subtitle / target ids).
+message Notification {
+  string id = 1;                  // server-generated stable id
+  string type = 2;                // event name, e.g. "follow" / "like" / "message.new"
+  string actor_id = 3;            // who triggered it (empty for system events)
+  map<string, string> data = 4;   // payload / display hints
+  int64 created_at = 5;           // unix seconds
+  bool read = 6;                  // whether the recipient has seen it
+}
+
+// The caller's own notifications, newest first (keyset paginated). END-USER
+// surface: routed through the gateway with the verified X-User-Id, unlike the
+// internal SendEmail / Notify write path.
+message ListNotificationsRequest {
+  string cursor = 1;
+  int32 limit = 2;                // 1..100, default 50
+}
+message ListNotificationsResponse {
+  repeated Notification notifications = 1;
+  string next_cursor = 2;
+  int32 unread_count = 3;         // caller's total unread (across all pages)
+}
+
+// Mark all the caller's notifications read (the "opened the tab" action).
+message MarkNotificationsReadRequest {}
+message MarkNotificationsReadResponse {}
+
+// Register (upsert) the caller's push device token so future events can reach
+// it. Idempotent by token; re-registering refreshes the last-seen time.
+message RegisterDeviceRequest {
+  string token = 1;               // opaque push token (APNs/FCM/web)
+  string platform = 2;            // "ios" | "android" | "web"
+}
+message RegisterDeviceResponse {}
+
+// Drop the caller's device token (logout / uninstall).
+message UnregisterDeviceRequest {
+  string token = 1;
+}
+message UnregisterDeviceResponse {}
+
+// Per-type notification preferences. Keys are event types ("follow", "like",
+// "comment", "message.new"); a value of false MUTES that type (no in-app
+// notification and no push). A type absent from the map defaults to ENABLED.
+message GetNotificationPrefsRequest {}
+message GetNotificationPrefsResponse {
+  map<string, bool> enabled = 1;   // only the caller's explicit overrides
+}
+message UpdateNotificationPrefsRequest {
+  map<string, bool> enabled = 1;   // upserts the given type→enabled entries
+}
+message UpdateNotificationPrefsResponse {}
+
+// End-user surface — gateway-routed, authenticated by the verified caller.
+service NotificationService {
+  rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
+  rpc MarkNotificationsRead(MarkNotificationsReadRequest) returns (MarkNotificationsReadResponse);
+  rpc RegisterDevice(RegisterDeviceRequest) returns (RegisterDeviceResponse);
+  rpc UnregisterDevice(UnregisterDeviceRequest) returns (UnregisterDeviceResponse);
+  rpc GetNotificationPrefs(GetNotificationPrefsRequest) returns (GetNotificationPrefsResponse);
+  rpc UpdateNotificationPrefs(UpdateNotificationPrefsRequest) returns (UpdateNotificationPrefsResponse);
+}

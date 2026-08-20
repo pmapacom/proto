@@ -1,0 +1,167 @@
+syntax = "proto3";
+
+// PMapa authentication service — identity & authentication ONLY (no
+// authorization, no profile/content). It issues a short-lived, DPoP-bound access
+// token and a long-lived, revocable, device-bound refresh token, and can
+// identify a caller from an access token. Authorization and user data live in
+// the domain back-ends.
+//
+// Transport note: DPoP is carried in HTTP headers (`Authorization: DPoP <jwt>`
+// + `DPoP: <proof>`), not in these messages, so it does not appear in the
+// contract. The gateway/verify endpoint validates the proof.
+package pmapa.auth.v1;
+
+// The client device a session is bound to. `device_id` is a stable per-install
+// UUID (kept in secure storage); `label` is human-friendly for the device list.
+message DeviceInfo {
+  string device_id = 1;
+  string label = 2; // e.g. "iPhone 15 — Safari"
+}
+
+// A freshly issued token pair.
+message TokenPair {
+  // Short-lived signed JWT (EdDSA), DPoP-bound, sent as
+  // `Authorization: DPoP <access_token>`.
+  string access_token = 1;
+  // Long-lived, server-stored, revocable, device-bound token. Rotated on each
+  // Refresh (reuse of an old one revokes the whole session).
+  string refresh_token = 2;
+  // Access-token expiry (unix seconds) so the client can refresh proactively.
+  int64 access_expires_at = 3;
+}
+
+// Social identity providers we verify ID tokens from.
+enum OidcProvider {
+  OIDC_PROVIDER_UNSPECIFIED = 0;
+  OIDC_PROVIDER_GOOGLE = 1;
+  OIDC_PROVIDER_APPLE = 2;
+}
+
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
+  string handle = 3; // optional public handle, e.g. "@alex"
+  DeviceInfo device = 4;
+}
+message RegisterResponse {
+  string user_id = 1;
+  TokenPair tokens = 2;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+  DeviceInfo device = 3;
+}
+message LoginResponse {
+  string user_id = 1;
+  TokenPair tokens = 2;
+}
+
+// Sign in with Google/Apple: the client obtains an OIDC ID token via the native
+// SDK; auth verifies its signature against the provider JWKS, then links or
+// creates the user and issues OUR tokens.
+message LoginWithOidcRequest {
+  OidcProvider provider = 1;
+  string id_token = 2;
+  DeviceInfo device = 3;
+}
+message LoginWithOidcResponse {
+  string user_id = 1;
+  TokenPair tokens = 2;
+}
+
+// Exchange a valid refresh token for a new access token (and a rotated refresh
+// token). The old refresh token is invalidated.
+message RefreshRequest {
+  string refresh_token = 1;
+}
+message RefreshResponse {
+  TokenPair tokens = 1;
+}
+
+// Revoke the session behind this refresh token (sign out on this device).
+message LogoutRequest {
+  string refresh_token = 1;
+}
+message LogoutResponse {}
+
+// Always succeeds (no account enumeration): if the email exists, a one-time
+// reset token is delivered out-of-band (email).
+message RequestPasswordResetRequest {
+  string email = 1;
+}
+message RequestPasswordResetResponse {}
+
+message ResetPasswordRequest {
+  string reset_token = 1;
+  string new_password = 2;
+}
+message ResetPasswordResponse {}
+
+// Identify the caller from an access token. Backs the gateway's internal
+// verification of every request and the app's "who am I".
+message WhoAmIRequest {
+  string access_token = 1;
+}
+message WhoAmIResponse {
+  string user_id = 1;
+}
+
+// One active session, shown in the "your devices" UI. The caller is identified
+// from the gateway-injected user id (not carried in the request).
+message Session {
+  string id = 1;
+  string device_label = 2;
+  int64 created_at = 3;    // unix seconds
+  int64 last_used_at = 4;  // unix seconds
+  bool current = 5;        // the session making this call
+}
+message ListSessionsRequest {}
+message ListSessionsResponse {
+  repeated Session sessions = 1;
+}
+message RevokeSessionRequest {
+  string session_id = 1;
+}
+message RevokeSessionResponse {}
+
+// Permanently delete the caller's account: the auth identity + all sessions and
+// tokens, plus (best-effort, s2s) every domain service's data. The device is
+// logged out afterwards. Irreversible. Password accounts must re-enter their
+// password here (a stolen access token alone can't delete the account); social-
+// only accounts leave it blank (the authenticated session is the proof).
+message DeleteAccountRequest {
+  string password = 1;
+}
+message DeleteAccountResponse {}
+
+// Change the caller's password (authenticated). Verifies current_password,
+// then signs out EVERY session and issues a fresh token pair for THIS device,
+// so the current device stays signed in while other devices are logged out.
+message ChangePasswordRequest {
+  string current_password = 1;
+  string new_password = 2;
+  DeviceInfo device = 3;      // this device (to mint the replacement session)
+}
+message ChangePasswordResponse {
+  TokenPair tokens = 1;
+}
+
+service AuthService {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc LoginWithOidc(LoginWithOidcRequest) returns (LoginWithOidcResponse);
+  rpc Refresh(RefreshRequest) returns (RefreshResponse);
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
+  rpc RequestPasswordReset(RequestPasswordResetRequest)
+      returns (RequestPasswordResetResponse);
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
+  rpc WhoAmI(WhoAmIRequest) returns (WhoAmIResponse);
+
+  // Device management for the "your devices" screen (authenticated via gateway).
+  rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse);
+  rpc RevokeSession(RevokeSessionRequest) returns (RevokeSessionResponse);
+  rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+}
