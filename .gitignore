@@ -1,4 +1,9 @@
-# generated Dart build cache
+# Generated code (proto/gen) is VENDORED and committed: every Go module does
+# `replace github.com/pmapa/proto/gen/go => ../proto/gen/go`, so the build needs
+# it present. Regenerate with `buf generate`. (Previously this file ignored
+# /gen/; that made a fresh clone fail to build — blocker B2.)
+
+# generated Dart build cache (NOT vendored — safe to ignore)
 gen/dart/.dart_tool/
 # IDE / OS
 .idea/
