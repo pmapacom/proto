@@ -116,3 +116,16 @@ proto/
   gen/dart/           # generated Dart package `pmapa_proto` (path-dep of app/)
     lib/src/…
 ```
+
+## Configuration
+
+`proto` is a **code-generation contract library** — it runs as no process and
+has **no runtime configuration or environment variables**. Its only "config" is
+the buf toolchain, all committed:
+
+- `buf.yaml` — module + `STANDARD` lint + `FILE`-level breaking-change rules.
+- `buf.gen.yaml` — codegen targets (Go + connect-go, Dart) and local plugins.
+- `Makefile` — `make lint` / `make generate` / `make breaking` / `make clean`.
+
+Requirements: [`buf`](https://buf.build) plus the plugins referenced in
+`buf.gen.yaml`. Regenerate after editing any `.proto`, then commit `gen/`.
