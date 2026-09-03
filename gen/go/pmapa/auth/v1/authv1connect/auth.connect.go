@@ -73,6 +73,8 @@ const (
 	// AuthServiceChangePasswordProcedure is the fully-qualified name of the AuthService's
 	// ChangePassword RPC.
 	AuthServiceChangePasswordProcedure = "/pmapa.auth.v1.AuthService/ChangePassword"
+	// AuthServiceSetEmailProcedure is the fully-qualified name of the AuthService's SetEmail RPC.
+	AuthServiceSetEmailProcedure = "/pmapa.auth.v1.AuthService/SetEmail"
 )
 
 // AuthServiceClient is a client for the pmapa.auth.v1.AuthService service.
@@ -90,6 +92,8 @@ type AuthServiceClient interface {
 	RevokeSession(context.Context, *connect.Request[v1.RevokeSessionRequest]) (*connect.Response[v1.RevokeSessionResponse], error)
 	DeleteAccount(context.Context, *connect.Request[v1.DeleteAccountRequest]) (*connect.Response[v1.DeleteAccountResponse], error)
 	ChangePassword(context.Context, *connect.Request[v1.ChangePasswordRequest]) (*connect.Response[v1.ChangePasswordResponse], error)
+	// Set the account email once, while it's still unset (authenticated).
+	SetEmail(context.Context, *connect.Request[v1.SetEmailRequest]) (*connect.Response[v1.SetEmailResponse], error)
 }
 
 // NewAuthServiceClient constructs a client for the pmapa.auth.v1.AuthService service. By default,
@@ -175,6 +179,12 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(authServiceMethods.ByName("ChangePassword")),
 			connect.WithClientOptions(opts...),
 		),
+		setEmail: connect.NewClient[v1.SetEmailRequest, v1.SetEmailResponse](
+			httpClient,
+			baseURL+AuthServiceSetEmailProcedure,
+			connect.WithSchema(authServiceMethods.ByName("SetEmail")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -192,6 +202,7 @@ type authServiceClient struct {
 	revokeSession        *connect.Client[v1.RevokeSessionRequest, v1.RevokeSessionResponse]
 	deleteAccount        *connect.Client[v1.DeleteAccountRequest, v1.DeleteAccountResponse]
 	changePassword       *connect.Client[v1.ChangePasswordRequest, v1.ChangePasswordResponse]
+	setEmail             *connect.Client[v1.SetEmailRequest, v1.SetEmailResponse]
 }
 
 // Register calls pmapa.auth.v1.AuthService.Register.
@@ -254,6 +265,11 @@ func (c *authServiceClient) ChangePassword(ctx context.Context, req *connect.Req
 	return c.changePassword.CallUnary(ctx, req)
 }
 
+// SetEmail calls pmapa.auth.v1.AuthService.SetEmail.
+func (c *authServiceClient) SetEmail(ctx context.Context, req *connect.Request[v1.SetEmailRequest]) (*connect.Response[v1.SetEmailResponse], error) {
+	return c.setEmail.CallUnary(ctx, req)
+}
+
 // AuthServiceHandler is an implementation of the pmapa.auth.v1.AuthService service.
 type AuthServiceHandler interface {
 	Register(context.Context, *connect.Request[v1.RegisterRequest]) (*connect.Response[v1.RegisterResponse], error)
@@ -269,6 +285,8 @@ type AuthServiceHandler interface {
 	RevokeSession(context.Context, *connect.Request[v1.RevokeSessionRequest]) (*connect.Response[v1.RevokeSessionResponse], error)
 	DeleteAccount(context.Context, *connect.Request[v1.DeleteAccountRequest]) (*connect.Response[v1.DeleteAccountResponse], error)
 	ChangePassword(context.Context, *connect.Request[v1.ChangePasswordRequest]) (*connect.Response[v1.ChangePasswordResponse], error)
+	// Set the account email once, while it's still unset (authenticated).
+	SetEmail(context.Context, *connect.Request[v1.SetEmailRequest]) (*connect.Response[v1.SetEmailResponse], error)
 }
 
 // NewAuthServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -350,6 +368,12 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(authServiceMethods.ByName("ChangePassword")),
 		connect.WithHandlerOptions(opts...),
 	)
+	authServiceSetEmailHandler := connect.NewUnaryHandler(
+		AuthServiceSetEmailProcedure,
+		svc.SetEmail,
+		connect.WithSchema(authServiceMethods.ByName("SetEmail")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/pmapa.auth.v1.AuthService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AuthServiceRegisterProcedure:
@@ -376,6 +400,8 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 			authServiceDeleteAccountHandler.ServeHTTP(w, r)
 		case AuthServiceChangePasswordProcedure:
 			authServiceChangePasswordHandler.ServeHTTP(w, r)
+		case AuthServiceSetEmailProcedure:
+			authServiceSetEmailHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -431,4 +457,8 @@ func (UnimplementedAuthServiceHandler) DeleteAccount(context.Context, *connect.R
 
 func (UnimplementedAuthServiceHandler) ChangePassword(context.Context, *connect.Request[v1.ChangePasswordRequest]) (*connect.Response[v1.ChangePasswordResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("pmapa.auth.v1.AuthService.ChangePassword is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) SetEmail(context.Context, *connect.Request[v1.SetEmailRequest]) (*connect.Response[v1.SetEmailResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("pmapa.auth.v1.AuthService.SetEmail is not implemented"))
 }

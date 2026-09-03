@@ -936,8 +936,12 @@ func (x *WhoAmIRequest) GetAccessToken() string {
 }
 
 type WhoAmIResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	UserId string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// The account email, or empty when it isn't set yet — e.g. a social sign-in
+	// that carried no email (stored server-side as a non-routable placeholder).
+	// An empty value means the client may offer to set it once (SetEmail).
+	Email         string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -975,6 +979,13 @@ func (*WhoAmIResponse) Descriptor() ([]byte, []int) {
 func (x *WhoAmIResponse) GetUserId() string {
 	if x != nil {
 		return x.UserId
+	}
+	return ""
+}
+
+func (x *WhoAmIResponse) GetEmail() string {
+	if x != nil {
+		return x.Email
 	}
 	return ""
 }
@@ -1409,6 +1420,97 @@ func (x *ChangePasswordResponse) GetTokens() *TokenPair {
 	return nil
 }
 
+// Set the caller's email — once (authenticated). Allowed only while the account
+// has no real email yet (e.g. a social sign-in with no email); an account that
+// already has one is frozen and this fails. The new email must be unused.
+type SetEmailRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetEmailRequest) Reset() {
+	*x = SetEmailRequest{}
+	mi := &file_pmapa_auth_v1_auth_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetEmailRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetEmailRequest) ProtoMessage() {}
+
+func (x *SetEmailRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pmapa_auth_v1_auth_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetEmailRequest.ProtoReflect.Descriptor instead.
+func (*SetEmailRequest) Descriptor() ([]byte, []int) {
+	return file_pmapa_auth_v1_auth_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *SetEmailRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+type SetEmailResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetEmailResponse) Reset() {
+	*x = SetEmailResponse{}
+	mi := &file_pmapa_auth_v1_auth_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetEmailResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetEmailResponse) ProtoMessage() {}
+
+func (x *SetEmailResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pmapa_auth_v1_auth_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetEmailResponse.ProtoReflect.Descriptor instead.
+func (*SetEmailResponse) Descriptor() ([]byte, []int) {
+	return file_pmapa_auth_v1_auth_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *SetEmailResponse) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
 var File_pmapa_auth_v1_auth_proto protoreflect.FileDescriptor
 
 const file_pmapa_auth_v1_auth_proto_rawDesc = "" +
@@ -1460,9 +1562,10 @@ const file_pmapa_auth_v1_auth_proto_rawDesc = "" +
 	"\fnew_password\x18\x02 \x01(\tR\vnewPassword\"\x17\n" +
 	"\x15ResetPasswordResponse\"2\n" +
 	"\rWhoAmIRequest\x12!\n" +
-	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\")\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"?\n" +
 	"\x0eWhoAmIResponse\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\"\x97\x01\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\"\x97\x01\n" +
 	"\aSession\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
 	"\fdevice_label\x18\x02 \x01(\tR\vdeviceLabel\x12\x1d\n" +
@@ -1486,11 +1589,15 @@ const file_pmapa_auth_v1_auth_proto_rawDesc = "" +
 	"\fnew_password\x18\x02 \x01(\tR\vnewPassword\x121\n" +
 	"\x06device\x18\x03 \x01(\v2\x19.pmapa.auth.v1.DeviceInfoR\x06device\"J\n" +
 	"\x16ChangePasswordResponse\x120\n" +
-	"\x06tokens\x18\x01 \x01(\v2\x18.pmapa.auth.v1.TokenPairR\x06tokens*`\n" +
+	"\x06tokens\x18\x01 \x01(\v2\x18.pmapa.auth.v1.TokenPairR\x06tokens\"'\n" +
+	"\x0fSetEmailRequest\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\"(\n" +
+	"\x10SetEmailResponse\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email*`\n" +
 	"\fOidcProvider\x12\x1d\n" +
 	"\x19OIDC_PROVIDER_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14OIDC_PROVIDER_GOOGLE\x10\x01\x12\x17\n" +
-	"\x13OIDC_PROVIDER_APPLE\x10\x022\x8f\b\n" +
+	"\x13OIDC_PROVIDER_APPLE\x10\x022\xdc\b\n" +
 	"\vAuthService\x12K\n" +
 	"\bRegister\x12\x1e.pmapa.auth.v1.RegisterRequest\x1a\x1f.pmapa.auth.v1.RegisterResponse\x12B\n" +
 	"\x05Login\x12\x1b.pmapa.auth.v1.LoginRequest\x1a\x1c.pmapa.auth.v1.LoginResponse\x12Z\n" +
@@ -1503,7 +1610,8 @@ const file_pmapa_auth_v1_auth_proto_rawDesc = "" +
 	"\fListSessions\x12\".pmapa.auth.v1.ListSessionsRequest\x1a#.pmapa.auth.v1.ListSessionsResponse\x12Z\n" +
 	"\rRevokeSession\x12#.pmapa.auth.v1.RevokeSessionRequest\x1a$.pmapa.auth.v1.RevokeSessionResponse\x12Z\n" +
 	"\rDeleteAccount\x12#.pmapa.auth.v1.DeleteAccountRequest\x1a$.pmapa.auth.v1.DeleteAccountResponse\x12]\n" +
-	"\x0eChangePassword\x12$.pmapa.auth.v1.ChangePasswordRequest\x1a%.pmapa.auth.v1.ChangePasswordResponseB\xab\x01\n" +
+	"\x0eChangePassword\x12$.pmapa.auth.v1.ChangePasswordRequest\x1a%.pmapa.auth.v1.ChangePasswordResponse\x12K\n" +
+	"\bSetEmail\x12\x1e.pmapa.auth.v1.SetEmailRequest\x1a\x1f.pmapa.auth.v1.SetEmailResponseB\xab\x01\n" +
 	"\x11com.pmapa.auth.v1B\tAuthProtoP\x01Z5github.com/pmapacom/proto/gen/go/pmapa/auth/v1;authv1\xa2\x02\x03PAX\xaa\x02\rPmapa.Auth.V1\xca\x02\rPmapa\\Auth\\V1\xe2\x02\x19Pmapa\\Auth\\V1\\GPBMetadata\xea\x02\x0fPmapa::Auth::V1b\x06proto3"
 
 var (
@@ -1519,7 +1627,7 @@ func file_pmapa_auth_v1_auth_proto_rawDescGZIP() []byte {
 }
 
 var file_pmapa_auth_v1_auth_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_pmapa_auth_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_pmapa_auth_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
 var file_pmapa_auth_v1_auth_proto_goTypes = []any{
 	(OidcProvider)(0),                    // 0: pmapa.auth.v1.OidcProvider
 	(*DeviceInfo)(nil),                   // 1: pmapa.auth.v1.DeviceInfo
@@ -1549,6 +1657,8 @@ var file_pmapa_auth_v1_auth_proto_goTypes = []any{
 	(*DeleteAccountResponse)(nil),        // 25: pmapa.auth.v1.DeleteAccountResponse
 	(*ChangePasswordRequest)(nil),        // 26: pmapa.auth.v1.ChangePasswordRequest
 	(*ChangePasswordResponse)(nil),       // 27: pmapa.auth.v1.ChangePasswordResponse
+	(*SetEmailRequest)(nil),              // 28: pmapa.auth.v1.SetEmailRequest
+	(*SetEmailResponse)(nil),             // 29: pmapa.auth.v1.SetEmailResponse
 }
 var file_pmapa_auth_v1_auth_proto_depIdxs = []int32{
 	1,  // 0: pmapa.auth.v1.RegisterRequest.device:type_name -> pmapa.auth.v1.DeviceInfo
@@ -1574,20 +1684,22 @@ var file_pmapa_auth_v1_auth_proto_depIdxs = []int32{
 	22, // 20: pmapa.auth.v1.AuthService.RevokeSession:input_type -> pmapa.auth.v1.RevokeSessionRequest
 	24, // 21: pmapa.auth.v1.AuthService.DeleteAccount:input_type -> pmapa.auth.v1.DeleteAccountRequest
 	26, // 22: pmapa.auth.v1.AuthService.ChangePassword:input_type -> pmapa.auth.v1.ChangePasswordRequest
-	4,  // 23: pmapa.auth.v1.AuthService.Register:output_type -> pmapa.auth.v1.RegisterResponse
-	6,  // 24: pmapa.auth.v1.AuthService.Login:output_type -> pmapa.auth.v1.LoginResponse
-	8,  // 25: pmapa.auth.v1.AuthService.LoginWithOidc:output_type -> pmapa.auth.v1.LoginWithOidcResponse
-	10, // 26: pmapa.auth.v1.AuthService.Refresh:output_type -> pmapa.auth.v1.RefreshResponse
-	12, // 27: pmapa.auth.v1.AuthService.Logout:output_type -> pmapa.auth.v1.LogoutResponse
-	14, // 28: pmapa.auth.v1.AuthService.RequestPasswordReset:output_type -> pmapa.auth.v1.RequestPasswordResetResponse
-	16, // 29: pmapa.auth.v1.AuthService.ResetPassword:output_type -> pmapa.auth.v1.ResetPasswordResponse
-	18, // 30: pmapa.auth.v1.AuthService.WhoAmI:output_type -> pmapa.auth.v1.WhoAmIResponse
-	21, // 31: pmapa.auth.v1.AuthService.ListSessions:output_type -> pmapa.auth.v1.ListSessionsResponse
-	23, // 32: pmapa.auth.v1.AuthService.RevokeSession:output_type -> pmapa.auth.v1.RevokeSessionResponse
-	25, // 33: pmapa.auth.v1.AuthService.DeleteAccount:output_type -> pmapa.auth.v1.DeleteAccountResponse
-	27, // 34: pmapa.auth.v1.AuthService.ChangePassword:output_type -> pmapa.auth.v1.ChangePasswordResponse
-	23, // [23:35] is the sub-list for method output_type
-	11, // [11:23] is the sub-list for method input_type
+	28, // 23: pmapa.auth.v1.AuthService.SetEmail:input_type -> pmapa.auth.v1.SetEmailRequest
+	4,  // 24: pmapa.auth.v1.AuthService.Register:output_type -> pmapa.auth.v1.RegisterResponse
+	6,  // 25: pmapa.auth.v1.AuthService.Login:output_type -> pmapa.auth.v1.LoginResponse
+	8,  // 26: pmapa.auth.v1.AuthService.LoginWithOidc:output_type -> pmapa.auth.v1.LoginWithOidcResponse
+	10, // 27: pmapa.auth.v1.AuthService.Refresh:output_type -> pmapa.auth.v1.RefreshResponse
+	12, // 28: pmapa.auth.v1.AuthService.Logout:output_type -> pmapa.auth.v1.LogoutResponse
+	14, // 29: pmapa.auth.v1.AuthService.RequestPasswordReset:output_type -> pmapa.auth.v1.RequestPasswordResetResponse
+	16, // 30: pmapa.auth.v1.AuthService.ResetPassword:output_type -> pmapa.auth.v1.ResetPasswordResponse
+	18, // 31: pmapa.auth.v1.AuthService.WhoAmI:output_type -> pmapa.auth.v1.WhoAmIResponse
+	21, // 32: pmapa.auth.v1.AuthService.ListSessions:output_type -> pmapa.auth.v1.ListSessionsResponse
+	23, // 33: pmapa.auth.v1.AuthService.RevokeSession:output_type -> pmapa.auth.v1.RevokeSessionResponse
+	25, // 34: pmapa.auth.v1.AuthService.DeleteAccount:output_type -> pmapa.auth.v1.DeleteAccountResponse
+	27, // 35: pmapa.auth.v1.AuthService.ChangePassword:output_type -> pmapa.auth.v1.ChangePasswordResponse
+	29, // 36: pmapa.auth.v1.AuthService.SetEmail:output_type -> pmapa.auth.v1.SetEmailResponse
+	24, // [24:37] is the sub-list for method output_type
+	11, // [11:24] is the sub-list for method input_type
 	11, // [11:11] is the sub-list for extension type_name
 	11, // [11:11] is the sub-list for extension extendee
 	0,  // [0:11] is the sub-list for field type_name
@@ -1604,7 +1716,7 @@ func file_pmapa_auth_v1_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pmapa_auth_v1_auth_proto_rawDesc), len(file_pmapa_auth_v1_auth_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   27,
+			NumMessages:   29,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

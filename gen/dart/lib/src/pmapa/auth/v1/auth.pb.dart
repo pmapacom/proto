@@ -1109,9 +1109,11 @@ class WhoAmIRequest extends $pb.GeneratedMessage {
 class WhoAmIResponse extends $pb.GeneratedMessage {
   factory WhoAmIResponse({
     $core.String? userId,
+    $core.String? email,
   }) {
     final result = create();
     if (userId != null) result.userId = userId;
+    if (email != null) result.email = email;
     return result;
   }
 
@@ -1129,6 +1131,7 @@ class WhoAmIResponse extends $pb.GeneratedMessage {
       package: const $pb.PackageName(_omitMessageNames ? '' : 'pmapa.auth.v1'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'userId')
+    ..aOS(2, _omitFieldNames ? '' : 'email')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -1158,6 +1161,18 @@ class WhoAmIResponse extends $pb.GeneratedMessage {
   $core.bool hasUserId() => $_has(0);
   @$pb.TagNumber(1)
   void clearUserId() => $_clearField(1);
+
+  /// The account email, or empty when it isn't set yet — e.g. a social sign-in
+  /// that carried no email (stored server-side as a non-routable placeholder).
+  /// An empty value means the client may offer to set it once (SetEmail).
+  @$pb.TagNumber(2)
+  $core.String get email => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set email($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasEmail() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearEmail() => $_clearField(2);
 }
 
 /// One active session, shown in the "your devices" UI. The caller is identified
@@ -1684,6 +1699,117 @@ class ChangePasswordResponse extends $pb.GeneratedMessage {
   TokenPair ensureTokens() => $_ensure(0);
 }
 
+/// Set the caller's email — once (authenticated). Allowed only while the account
+/// has no real email yet (e.g. a social sign-in with no email); an account that
+/// already has one is frozen and this fails. The new email must be unused.
+class SetEmailRequest extends $pb.GeneratedMessage {
+  factory SetEmailRequest({
+    $core.String? email,
+  }) {
+    final result = create();
+    if (email != null) result.email = email;
+    return result;
+  }
+
+  SetEmailRequest._();
+
+  factory SetEmailRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory SetEmailRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SetEmailRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'pmapa.auth.v1'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'email')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SetEmailRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SetEmailRequest copyWith(void Function(SetEmailRequest) updates) =>
+      super.copyWith((message) => updates(message as SetEmailRequest))
+          as SetEmailRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SetEmailRequest create() => SetEmailRequest._();
+  @$core.override
+  SetEmailRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static SetEmailRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SetEmailRequest>(create);
+  static SetEmailRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get email => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set email($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasEmail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearEmail() => $_clearField(1);
+}
+
+class SetEmailResponse extends $pb.GeneratedMessage {
+  factory SetEmailResponse({
+    $core.String? email,
+  }) {
+    final result = create();
+    if (email != null) result.email = email;
+    return result;
+  }
+
+  SetEmailResponse._();
+
+  factory SetEmailResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory SetEmailResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SetEmailResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'pmapa.auth.v1'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'email')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SetEmailResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SetEmailResponse copyWith(void Function(SetEmailResponse) updates) =>
+      super.copyWith((message) => updates(message as SetEmailResponse))
+          as SetEmailResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SetEmailResponse create() => SetEmailResponse._();
+  @$core.override
+  SetEmailResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static SetEmailResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SetEmailResponse>(create);
+  static SetEmailResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get email => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set email($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasEmail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearEmail() => $_clearField(1);
+}
+
 class AuthServiceApi {
   final $pb.RpcClient _client;
 
@@ -1739,6 +1865,12 @@ class AuthServiceApi {
           $pb.ClientContext? ctx, ChangePasswordRequest request) =>
       _client.invoke<ChangePasswordResponse>(ctx, 'AuthService',
           'ChangePassword', request, ChangePasswordResponse());
+
+  /// Set the account email once, while it's still unset (authenticated).
+  $async.Future<SetEmailResponse> setEmail(
+          $pb.ClientContext? ctx, SetEmailRequest request) =>
+      _client.invoke<SetEmailResponse>(
+          ctx, 'AuthService', 'SetEmail', request, SetEmailResponse());
 }
 
 const $core.bool _omitFieldNames =

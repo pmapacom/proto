@@ -106,6 +106,10 @@ message WhoAmIRequest {
 }
 message WhoAmIResponse {
   string user_id = 1;
+  // The account email, or empty when it isn't set yet — e.g. a social sign-in
+  // that carried no email (stored server-side as a non-routable placeholder).
+  // An empty value means the client may offer to set it once (SetEmail).
+  string email = 2;
 }
 
 // One active session, shown in the "your devices" UI. The caller is identified
@@ -148,6 +152,16 @@ message ChangePasswordResponse {
   TokenPair tokens = 1;
 }
 
+// Set the caller's email — once (authenticated). Allowed only while the account
+// has no real email yet (e.g. a social sign-in with no email); an account that
+// already has one is frozen and this fails. The new email must be unused.
+message SetEmailRequest {
+  string email = 1;
+}
+message SetEmailResponse {
+  string email = 1;
+}
+
 service AuthService {
   rpc Register(RegisterRequest) returns (RegisterResponse);
   rpc Login(LoginRequest) returns (LoginResponse);
@@ -164,4 +178,6 @@ service AuthService {
   rpc RevokeSession(RevokeSessionRequest) returns (RevokeSessionResponse);
   rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
   rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+  // Set the account email once, while it's still unset (authenticated).
+  rpc SetEmail(SetEmailRequest) returns (SetEmailResponse);
 }

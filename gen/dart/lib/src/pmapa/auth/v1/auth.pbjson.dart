@@ -315,12 +315,14 @@ const WhoAmIResponse$json = {
   '1': 'WhoAmIResponse',
   '2': [
     {'1': 'user_id', '3': 1, '4': 1, '5': 9, '10': 'userId'},
+    {'1': 'email', '3': 2, '4': 1, '5': 9, '10': 'email'},
   ],
 };
 
 /// Descriptor for `WhoAmIResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List whoAmIResponseDescriptor = $convert
-    .base64Decode('Cg5XaG9BbUlSZXNwb25zZRIXCgd1c2VyX2lkGAEgASgJUgZ1c2VySWQ=');
+final $typed_data.Uint8List whoAmIResponseDescriptor = $convert.base64Decode(
+    'Cg5XaG9BbUlSZXNwb25zZRIXCgd1c2VyX2lkGAEgASgJUgZ1c2VySWQSFAoFZW1haWwYAiABKA'
+    'lSBWVtYWls');
 
 @$core.Deprecated('Use sessionDescriptor instead')
 const Session$json = {
@@ -456,6 +458,30 @@ final $typed_data.Uint8List changePasswordResponseDescriptor =
         'ChZDaGFuZ2VQYXNzd29yZFJlc3BvbnNlEjAKBnRva2VucxgBIAEoCzIYLnBtYXBhLmF1dGgudj'
         'EuVG9rZW5QYWlyUgZ0b2tlbnM=');
 
+@$core.Deprecated('Use setEmailRequestDescriptor instead')
+const SetEmailRequest$json = {
+  '1': 'SetEmailRequest',
+  '2': [
+    {'1': 'email', '3': 1, '4': 1, '5': 9, '10': 'email'},
+  ],
+};
+
+/// Descriptor for `SetEmailRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setEmailRequestDescriptor = $convert
+    .base64Decode('Cg9TZXRFbWFpbFJlcXVlc3QSFAoFZW1haWwYASABKAlSBWVtYWls');
+
+@$core.Deprecated('Use setEmailResponseDescriptor instead')
+const SetEmailResponse$json = {
+  '1': 'SetEmailResponse',
+  '2': [
+    {'1': 'email', '3': 1, '4': 1, '5': 9, '10': 'email'},
+  ],
+};
+
+/// Descriptor for `SetEmailResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setEmailResponseDescriptor = $convert
+    .base64Decode('ChBTZXRFbWFpbFJlc3BvbnNlEhQKBWVtYWlsGAEgASgJUgVlbWFpbA==');
+
 const $core.Map<$core.String, $core.dynamic> AuthServiceBase$json = {
   '1': 'AuthService',
   '2': [
@@ -519,6 +545,11 @@ const $core.Map<$core.String, $core.dynamic> AuthServiceBase$json = {
       '2': '.pmapa.auth.v1.ChangePasswordRequest',
       '3': '.pmapa.auth.v1.ChangePasswordResponse'
     },
+    {
+      '1': 'SetEmail',
+      '2': '.pmapa.auth.v1.SetEmailRequest',
+      '3': '.pmapa.auth.v1.SetEmailResponse'
+    },
   ],
 };
 
@@ -554,6 +585,8 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>>
   '.pmapa.auth.v1.DeleteAccountResponse': DeleteAccountResponse$json,
   '.pmapa.auth.v1.ChangePasswordRequest': ChangePasswordRequest$json,
   '.pmapa.auth.v1.ChangePasswordResponse': ChangePasswordResponse$json,
+  '.pmapa.auth.v1.SetEmailRequest': SetEmailRequest$json,
+  '.pmapa.auth.v1.SetEmailResponse': SetEmailResponse$json,
 };
 
 /// Descriptor for `AuthService`. Decode as a `google.protobuf.ServiceDescriptorProto`.
@@ -576,4 +609,6 @@ final $typed_data.Uint8List authServiceDescriptor = $convert.base64Decode(
     'V2b2tlU2Vzc2lvblJlc3BvbnNlEloKDURlbGV0ZUFjY291bnQSIy5wbWFwYS5hdXRoLnYxLkRl'
     'bGV0ZUFjY291bnRSZXF1ZXN0GiQucG1hcGEuYXV0aC52MS5EZWxldGVBY2NvdW50UmVzcG9uc2'
     'USXQoOQ2hhbmdlUGFzc3dvcmQSJC5wbWFwYS5hdXRoLnYxLkNoYW5nZVBhc3N3b3JkUmVxdWVz'
-    'dBolLnBtYXBhLmF1dGgudjEuQ2hhbmdlUGFzc3dvcmRSZXNwb25zZQ==');
+    'dBolLnBtYXBhLmF1dGgudjEuQ2hhbmdlUGFzc3dvcmRSZXNwb25zZRJLCghTZXRFbWFpbBIeLn'
+    'BtYXBhLmF1dGgudjEuU2V0RW1haWxSZXF1ZXN0Gh8ucG1hcGEuYXV0aC52MS5TZXRFbWFpbFJl'
+    'c3BvbnNl');
