@@ -110,6 +110,11 @@ message WhoAmIResponse {
   // that carried no email (stored server-side as a non-routable placeholder).
   // An empty value means the client may offer to set it once (SetEmail).
   string email = 2;
+  // Whether the account has a password. False for social-only sign-ins that
+  // never set one — the client then offers "set password" (no current needed)
+  // rather than "change password". Setting a password via ChangePassword is
+  // allowed either way; email + password login coexists with social login.
+  bool has_password = 3;
 }
 
 // One active session, shown in the "your devices" UI. The caller is identified

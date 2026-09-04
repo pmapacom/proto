@@ -1110,10 +1110,12 @@ class WhoAmIResponse extends $pb.GeneratedMessage {
   factory WhoAmIResponse({
     $core.String? userId,
     $core.String? email,
+    $core.bool? hasPassword,
   }) {
     final result = create();
     if (userId != null) result.userId = userId;
     if (email != null) result.email = email;
+    if (hasPassword != null) result.hasPassword = hasPassword;
     return result;
   }
 
@@ -1132,6 +1134,7 @@ class WhoAmIResponse extends $pb.GeneratedMessage {
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'userId')
     ..aOS(2, _omitFieldNames ? '' : 'email')
+    ..aOB(3, _omitFieldNames ? '' : 'hasPassword')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -1173,6 +1176,19 @@ class WhoAmIResponse extends $pb.GeneratedMessage {
   $core.bool hasEmail() => $_has(1);
   @$pb.TagNumber(2)
   void clearEmail() => $_clearField(2);
+
+  /// Whether the account has a password. False for social-only sign-ins that
+  /// never set one — the client then offers "set password" (no current needed)
+  /// rather than "change password". Setting a password via ChangePassword is
+  /// allowed either way; email + password login coexists with social login.
+  @$pb.TagNumber(3)
+  $core.bool get hasPassword => $_getBF(2);
+  @$pb.TagNumber(3)
+  set hasPassword($core.bool value) => $_setBool(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasHasPassword() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearHasPassword() => $_clearField(3);
 }
 
 /// One active session, shown in the "your devices" UI. The caller is identified

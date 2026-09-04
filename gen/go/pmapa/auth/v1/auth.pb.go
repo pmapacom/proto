@@ -941,7 +941,12 @@ type WhoAmIResponse struct {
 	// The account email, or empty when it isn't set yet — e.g. a social sign-in
 	// that carried no email (stored server-side as a non-routable placeholder).
 	// An empty value means the client may offer to set it once (SetEmail).
-	Email         string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	// Whether the account has a password. False for social-only sign-ins that
+	// never set one — the client then offers "set password" (no current needed)
+	// rather than "change password". Setting a password via ChangePassword is
+	// allowed either way; email + password login coexists with social login.
+	HasPassword   bool `protobuf:"varint,3,opt,name=has_password,json=hasPassword,proto3" json:"has_password,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -988,6 +993,13 @@ func (x *WhoAmIResponse) GetEmail() string {
 		return x.Email
 	}
 	return ""
+}
+
+func (x *WhoAmIResponse) GetHasPassword() bool {
+	if x != nil {
+		return x.HasPassword
+	}
+	return false
 }
 
 // One active session, shown in the "your devices" UI. The caller is identified
@@ -1562,10 +1574,11 @@ const file_pmapa_auth_v1_auth_proto_rawDesc = "" +
 	"\fnew_password\x18\x02 \x01(\tR\vnewPassword\"\x17\n" +
 	"\x15ResetPasswordResponse\"2\n" +
 	"\rWhoAmIRequest\x12!\n" +
-	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"?\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"b\n" +
 	"\x0eWhoAmIResponse\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\"\x97\x01\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12!\n" +
+	"\fhas_password\x18\x03 \x01(\bR\vhasPassword\"\x97\x01\n" +
 	"\aSession\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
 	"\fdevice_label\x18\x02 \x01(\tR\vdeviceLabel\x12\x1d\n" +

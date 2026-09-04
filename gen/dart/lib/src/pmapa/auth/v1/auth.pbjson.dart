@@ -316,13 +316,14 @@ const WhoAmIResponse$json = {
   '2': [
     {'1': 'user_id', '3': 1, '4': 1, '5': 9, '10': 'userId'},
     {'1': 'email', '3': 2, '4': 1, '5': 9, '10': 'email'},
+    {'1': 'has_password', '3': 3, '4': 1, '5': 8, '10': 'hasPassword'},
   ],
 };
 
 /// Descriptor for `WhoAmIResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List whoAmIResponseDescriptor = $convert.base64Decode(
     'Cg5XaG9BbUlSZXNwb25zZRIXCgd1c2VyX2lkGAEgASgJUgZ1c2VySWQSFAoFZW1haWwYAiABKA'
-    'lSBWVtYWls');
+    'lSBWVtYWlsEiEKDGhhc19wYXNzd29yZBgDIAEoCFILaGFzUGFzc3dvcmQ=');
 
 @$core.Deprecated('Use sessionDescriptor instead')
 const Session$json = {
