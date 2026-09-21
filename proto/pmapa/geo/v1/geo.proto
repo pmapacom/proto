@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+// PMapa geo service — the canonical PLACE DICTIONARY (reference data).
+//
+// It owns two static datasets and nothing else:
+//   * countries — the full ISO 3166-1 alpha-2 list (246 entries) with flag
+//     emoji, UN-geoscheme region, centroid and a d3-geo map scale;
+//   * cities — the GeoNames `cities500` tier (~236k places with population
+//     >= 500) with country code, coordinates and population.
+//
+// Both are loaded into memory at boot and served read-only: there is no
+// database, no write path and no per-user state. Replaces the embedded
+// country index that used to live inside the Next.js frontend
+// (AUDIT.md §embedded-geo-service).
+//
+// Exposure: PUBLIC. Every RPC is an unauthenticated reference lookup, so the
+// gateway routes it WITHOUT auth_request (nothing here is user data).
+package pmapa.geo.v1;
+
+// ─────────────────────────────── entities ───────────────────────────────
+
+message Country {
+  string iso2 = 1;       // ISO 3166-1 alpha-2, lowercase ("jp")
+  string name = 2;       // international English name
+  string flag = 3;       // Unicode flag emoji, derived from iso2
+  string region = 4;     // UN geoscheme macro-region ("East Asia")
+  double lat = 5;        // centroid latitude
+  double lng = 6;        // centroid longitude
+  int32 map_scale = 7;   // d3-geo projection scale for a country-focus view
+  string image_url = 8;  // curated photo, else the national flag image
+  int32 city_count = 9;  // cities this country has in the dictionary
+}
+
+message City {
+  string name = 1;          // localized/native name ("São Paulo")
+  string ascii_name = 2;    // ASCII form, for accent-insensitive matching
+  string country_iso2 = 3;  // lowercase ISO 3166-1 alpha-2
+  string country_name = 4;  // resolved from the country dictionary
+  string flag = 5;          // country flag emoji
+  double lat = 6;
+  double lng = 7;
+  int64 population = 8;
+  string image_url = 9;     // curated photo, else the country flag image
+}
+
+// ───────────────────────────────── RPCs ─────────────────────────────────
+
+// Browse or search countries. `query` is a case-insensitive substring match on
+// name, region and iso2; empty `query` lists everything. Results are ordered by
+// name and paginated with offset/limit.
+message ListCountriesRequest {
+  string query = 1;
+  string region = 2;  // exact region filter, empty = all
+  int32 offset = 3;
+  int32 limit = 4;    // 0 => 60, capped at 250
+}
+message ListCountriesResponse {
+  repeated Country countries = 1;
+  int32 total = 2;  // matches BEFORE offset/limit — drives the pager
+}
+
+message GetCountryRequest {
+  string iso2 = 1;
+}
+message GetCountryResponse {
+  Country country = 1;
+}
+
+// Browse or search cities. `query` matches the native name and its ASCII form,
+// prefix matches first; `country_iso2` constrains to one country. Ordering is
+// by population descending, so an empty query yields the biggest cities.
+message ListCitiesRequest {
+  string query = 1;
+  string country_iso2 = 2;
+  int32 offset = 3;
+  int32 limit = 4;           // 0 => 60, capped at 250
+  int64 min_population = 5;  // 0 = no floor
+}
+message ListCitiesResponse {
+  repeated City cities = 1;
+  int32 total = 2;
+}
+
+// The single best (most populous) city with this name, optionally constrained
+// to a country — resolves a stored place name to real coordinates.
+message GetCityRequest {
+  string name = 1;
+  string country_iso2 = 2;
+}
+message GetCityResponse {
+  City city = 1;
+}
+
+// Distinct macro-regions with their country counts — powers the region filter.
+message Region {
+  string name = 1;
+  int32 country_count = 2;
+}
+message ListRegionsRequest {}
+message ListRegionsResponse {
+  repeated Region regions = 1;
+}
+
+service GeoService {
+  rpc ListCountries(ListCountriesRequest) returns (ListCountriesResponse);
+  rpc GetCountry(GetCountryRequest) returns (GetCountryResponse);
+  rpc ListCities(ListCitiesRequest) returns (ListCitiesResponse);
+  rpc GetCity(GetCityRequest) returns (GetCityResponse);
+  rpc ListRegions(ListRegionsRequest) returns (ListRegionsResponse);
+}
