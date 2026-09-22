@@ -1,0 +1,245 @@
+syntax = "proto3";
+
+// PMapa stay service — places to rent and places to buy.
+//
+// One contract serves both sides: a listing carries `mode` ("rent" or "buy")
+// and the fields the other side leaves empty. Browsing is PUBLIC (the gateway
+// routes ListStays/GetStay without auth, like the marketplace), while writing
+// and favourites are owner-scoped.
+//
+// Closed vocabularies — mode, property type, amenities, and so on — travel as
+// STRINGS rather than enums. They mirror the union types the clients already
+// use, keep the mapping to one line on both sides, and match how the store
+// service carries its category. The service validates them against a fixed
+// list, so an unknown value is rejected rather than stored.
+package pmapa.stay.v1;
+
+// ---- entity ----------------------------------------------------------------
+
+message Stay {
+  string id = 1;              // client-generated stable id (idempotency key)
+  string owner_id = 2;        // auth user id of the host/seller (server-enforced)
+  string mode = 3;            // "rent" | "buy"
+  string title = 4;
+  string description = 5;
+
+  string property_type = 6;   // apartment | house | villa | room | hostelBed | hotel | newBuild | resale
+  string place_type = 7;      // rent only: entire | privateRoom | sharedRoom
+
+  string city = 8;
+  string district = 9;
+  string country_iso2 = 10;
+  double lat = 11;
+  double lng = 12;
+
+  int64 price = 13;           // rent: per night. buy: whole property. Minor unit-free.
+  string currency = 14;       // display symbol, e.g. "$"
+  int64 monthly_price = 15;   // rent only, 0 when the host offers no monthly rate
+
+  int32 area_m2 = 16;
+  int32 bedrooms = 17;        // 0 = studio
+  int32 beds = 18;
+
+  double rating = 19;         // 0 when unrated
+  int32 reviews = 20;
+
+  repeated string amenities = 21;     // wifi, ac, kitchen, washer, workspace, pool, balcony, lift, parking
+  repeated string accessibility = 22; // ramp, liftAccess, stepFree
+  repeated string security = 23;      // guarded, safe, gated
+
+  // ---- rent side ----
+  string booking = 24;        // instant | request
+  string cancellation = 25;   // free | partial | none
+  repeated string house_rules = 26;  // pets, smoking, events
+  string check_in = 27;       // self | host | anytime
+  int32 min_nights = 28;
+  int32 weekly_discount_pct = 29;
+  int32 monthly_discount_pct = 30;
+  int32 deposit_months = 31;
+  int64 deposit_amount = 32;
+  bool breakfast = 33;
+  string available_from = 34; // ISO date, inclusive
+  string available_to = 35;   // ISO date, inclusive
+  bool infants_allowed = 36;
+
+  // ---- buy side ----
+  int32 built_year = 37;
+  string completion = 38;     // done | 2026..2030 | later
+  string finish = 39;         // none|cosmetic|renovated|designer | shell|preFinished|finished|turnkey|furnished
+  string foreign_purchase = 40; // allowed | restricted
+  string ownership = 41;      // freehold | leasehold
+  bool residency = 42;
+  double expected_yield_pct = 43;
+  bool managed = 44;
+
+  // ---- both ----
+  string host_kind = 45;      // private | agency | hotel | developer
+  bool host_verified = 46;    // server-controlled, never trusted from the client
+  repeated string host_languages = 47;
+  repeated string payments = 48;  // card, cash, crypto, onSite
+  repeated string image_urls = 49;
+  int64 created_at = 50;      // unix seconds, server-set
+  int64 updated_at = 51;      // unix seconds, server-set
+
+  bool viewer_saved = 52;     // empty for an anonymous viewer
+  bool is_mine = 53;
+}
+
+message StayPage {
+  repeated Stay stays = 1;
+  string next_cursor = 2;
+  // Matches BEFORE paging, so a client can show "128 places".
+  int32 total = 3;
+}
+
+// ---- browsing (PUBLIC) -----------------------------------------------------
+
+// Every field is optional; an empty one does not constrain. Set-valued filters
+// require ALL of the given values except `host_languages` and `payments`, which
+// require ANY — matching how a traveller reads them.
+message ListStaysRequest {
+  string mode = 1;                    // required in practice; empty lists both
+
+  string city = 2;
+  string district = 3;
+  string country_iso2 = 4;
+  // Radius in km around (lat,lng); 0 disables.
+  double radius_km = 5;
+  double lat = 6;
+  double lng = 7;
+
+  string available_from = 8;  // ISO date
+  string available_to = 9;    // ISO date
+  int32 flex_days = 10;       // widens what counts as covered
+
+  int32 infants = 11;
+  int32 pets = 12;
+  int32 sleepers = 13;        // adults + children; 0 disables the capacity check
+
+  repeated string property_types = 14;
+  repeated string place_types = 15;
+  int32 bedrooms = 16;        // -1 disables, 0 = studio, 5 = "5 or more"
+  int32 min_beds = 17;
+
+  string price_basis = 18;    // night | month | total | unit | sqm
+  int64 price_min = 19;
+  int64 price_max = 20;
+  string currency = 21;       // pins the currency when a bound is set
+
+  int32 area_min = 22;
+  int32 area_max = 23;
+
+  repeated string amenities = 24;
+  repeated string accessibility = 25;
+  repeated string security = 26;
+
+  double rating_min = 27;
+  string booking = 28;
+  string cancellation = 29;
+  repeated string house_rules = 30;
+  string check_in = 31;
+  int32 max_min_nights = 32;
+  bool weekly_discount = 33;
+  bool monthly_discount = 34;
+  bool no_deposit = 35;
+  int32 deposit_months_max = 36;   // -1 disables
+  int64 deposit_amount_max = 37;   // -1 disables
+  bool breakfast = 38;
+  bool monthly_stay = 39;
+
+  int32 built_from = 40;
+  int32 built_to = 41;
+  repeated string completions = 42;
+  repeated string finishes = 43;
+  string foreign_purchase = 44;
+  string ownership = 45;
+  bool residency_only = 46;
+  double yield_min = 47;
+  bool managed_only = 48;
+
+  repeated string host_kinds = 49;
+  bool verified_only = 50;
+  repeated string host_languages = 51;
+  repeated string payments = 52;
+  int64 published_after = 53;   // unix seconds
+
+  string include_words = 54;
+  string exclude_words = 55;
+
+  string sort = 56;             // relevance | priceAsc | priceDesc | ratingDesc | newest
+  string cursor = 57;
+  int32 limit = 58;             // 1..100, default 24
+}
+message ListStaysResponse {
+  StayPage page = 1;
+}
+
+message GetStayRequest {
+  string id = 1;
+}
+message GetStayResponse {
+  Stay stay = 1;
+}
+
+// ---- owner writes (AUTHENTICATED) -----------------------------------------
+
+// Upsert by id. The caller is always the owner; a foreign id is refused rather
+// than hijacked. Server-controlled fields (owner_id, timestamps, verification,
+// rating) are ignored on the way in.
+message PutStayRequest {
+  Stay stay = 1;
+}
+message PutStayResponse {
+  Stay stay = 1;
+}
+
+message DeleteStayRequest {
+  string id = 1;
+}
+message DeleteStayResponse {}
+
+message ListMyStaysRequest {
+  string cursor = 1;
+  int32 limit = 2;  // 1..200, default 50
+}
+message ListMyStaysResponse {
+  repeated Stay stays = 1;
+  string next_cursor = 2;
+}
+
+// ---- favourites (AUTHENTICATED) -------------------------------------------
+
+message SaveStayRequest {
+  string stay_id = 1;
+}
+message SaveStayResponse {}
+
+message UnsaveStayRequest {
+  string stay_id = 1;
+}
+message UnsaveStayResponse {}
+
+message ListSavedStayIdsRequest {
+  string cursor = 1;
+  int32 limit = 2;  // 1..500, default 200
+}
+message ListSavedStayIdsResponse {
+  repeated string stay_ids = 1;
+  string next_cursor = 2;
+}
+
+service StayService {
+  // browsing — public
+  rpc ListStays(ListStaysRequest) returns (ListStaysResponse);
+  rpc GetStay(GetStayRequest) returns (GetStayResponse);
+
+  // own listings
+  rpc ListMyStays(ListMyStaysRequest) returns (ListMyStaysResponse);
+  rpc PutStay(PutStayRequest) returns (PutStayResponse);
+  rpc DeleteStay(DeleteStayRequest) returns (DeleteStayResponse);
+
+  // favourites
+  rpc SaveStay(SaveStayRequest) returns (SaveStayResponse);
+  rpc UnsaveStay(UnsaveStayRequest) returns (UnsaveStayResponse);
+  rpc ListSavedStayIds(ListSavedStayIdsRequest) returns (ListSavedStayIdsResponse);
+}
