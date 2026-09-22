@@ -1071,6 +1071,8 @@ class ListStaysRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(15)
   $pb.PbList<$core.String> get placeTypes => $_getList(14);
 
+  /// Explicitly optional: 0 means a studio, so "unset" needs presence rather
+  /// than a sentinel a client can forget to send.
   @$pb.TagNumber(16)
   $core.int get bedrooms => $_getIZ(15);
   @$pb.TagNumber(16)

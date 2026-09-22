@@ -568,22 +568,24 @@ type ListStaysRequest struct {
 	District    string                 `protobuf:"bytes,3,opt,name=district,proto3" json:"district,omitempty"`
 	CountryIso2 string                 `protobuf:"bytes,4,opt,name=country_iso2,json=countryIso2,proto3" json:"country_iso2,omitempty"`
 	// Radius in km around (lat,lng); 0 disables.
-	RadiusKm         float64  `protobuf:"fixed64,5,opt,name=radius_km,json=radiusKm,proto3" json:"radius_km,omitempty"`
-	Lat              float64  `protobuf:"fixed64,6,opt,name=lat,proto3" json:"lat,omitempty"`
-	Lng              float64  `protobuf:"fixed64,7,opt,name=lng,proto3" json:"lng,omitempty"`
-	AvailableFrom    string   `protobuf:"bytes,8,opt,name=available_from,json=availableFrom,proto3" json:"available_from,omitempty"` // ISO date
-	AvailableTo      string   `protobuf:"bytes,9,opt,name=available_to,json=availableTo,proto3" json:"available_to,omitempty"`       // ISO date
-	FlexDays         int32    `protobuf:"varint,10,opt,name=flex_days,json=flexDays,proto3" json:"flex_days,omitempty"`              // widens what counts as covered
-	Infants          int32    `protobuf:"varint,11,opt,name=infants,proto3" json:"infants,omitempty"`
-	Pets             int32    `protobuf:"varint,12,opt,name=pets,proto3" json:"pets,omitempty"`
-	Sleepers         int32    `protobuf:"varint,13,opt,name=sleepers,proto3" json:"sleepers,omitempty"` // adults + children; 0 disables the capacity check
-	PropertyTypes    []string `protobuf:"bytes,14,rep,name=property_types,json=propertyTypes,proto3" json:"property_types,omitempty"`
-	PlaceTypes       []string `protobuf:"bytes,15,rep,name=place_types,json=placeTypes,proto3" json:"place_types,omitempty"`
-	Bedrooms         int32    `protobuf:"varint,16,opt,name=bedrooms,proto3" json:"bedrooms,omitempty"` // -1 disables, 0 = studio, 5 = "5 or more"
+	RadiusKm      float64  `protobuf:"fixed64,5,opt,name=radius_km,json=radiusKm,proto3" json:"radius_km,omitempty"`
+	Lat           float64  `protobuf:"fixed64,6,opt,name=lat,proto3" json:"lat,omitempty"`
+	Lng           float64  `protobuf:"fixed64,7,opt,name=lng,proto3" json:"lng,omitempty"`
+	AvailableFrom string   `protobuf:"bytes,8,opt,name=available_from,json=availableFrom,proto3" json:"available_from,omitempty"` // ISO date
+	AvailableTo   string   `protobuf:"bytes,9,opt,name=available_to,json=availableTo,proto3" json:"available_to,omitempty"`       // ISO date
+	FlexDays      int32    `protobuf:"varint,10,opt,name=flex_days,json=flexDays,proto3" json:"flex_days,omitempty"`              // widens what counts as covered
+	Infants       int32    `protobuf:"varint,11,opt,name=infants,proto3" json:"infants,omitempty"`
+	Pets          int32    `protobuf:"varint,12,opt,name=pets,proto3" json:"pets,omitempty"`
+	Sleepers      int32    `protobuf:"varint,13,opt,name=sleepers,proto3" json:"sleepers,omitempty"` // adults + children; 0 disables the capacity check
+	PropertyTypes []string `protobuf:"bytes,14,rep,name=property_types,json=propertyTypes,proto3" json:"property_types,omitempty"`
+	PlaceTypes    []string `protobuf:"bytes,15,rep,name=place_types,json=placeTypes,proto3" json:"place_types,omitempty"`
+	// Explicitly optional: 0 means a studio, so "unset" needs presence rather
+	// than a sentinel a client can forget to send.
+	Bedrooms         *int32   `protobuf:"varint,16,opt,name=bedrooms,proto3,oneof" json:"bedrooms,omitempty"` // 0 = studio, 5 = "5 or more"
 	MinBeds          int32    `protobuf:"varint,17,opt,name=min_beds,json=minBeds,proto3" json:"min_beds,omitempty"`
 	PriceBasis       string   `protobuf:"bytes,18,opt,name=price_basis,json=priceBasis,proto3" json:"price_basis,omitempty"` // night | month | total | unit | sqm
-	PriceMin         int64    `protobuf:"varint,19,opt,name=price_min,json=priceMin,proto3" json:"price_min,omitempty"`
-	PriceMax         int64    `protobuf:"varint,20,opt,name=price_max,json=priceMax,proto3" json:"price_max,omitempty"`
+	PriceMin         *int64   `protobuf:"varint,19,opt,name=price_min,json=priceMin,proto3,oneof" json:"price_min,omitempty"`
+	PriceMax         *int64   `protobuf:"varint,20,opt,name=price_max,json=priceMax,proto3,oneof" json:"price_max,omitempty"`
 	Currency         string   `protobuf:"bytes,21,opt,name=currency,proto3" json:"currency,omitempty"` // pins the currency when a bound is set
 	AreaMin          int32    `protobuf:"varint,22,opt,name=area_min,json=areaMin,proto3" json:"area_min,omitempty"`
 	AreaMax          int32    `protobuf:"varint,23,opt,name=area_max,json=areaMax,proto3" json:"area_max,omitempty"`
@@ -599,8 +601,8 @@ type ListStaysRequest struct {
 	WeeklyDiscount   bool     `protobuf:"varint,33,opt,name=weekly_discount,json=weeklyDiscount,proto3" json:"weekly_discount,omitempty"`
 	MonthlyDiscount  bool     `protobuf:"varint,34,opt,name=monthly_discount,json=monthlyDiscount,proto3" json:"monthly_discount,omitempty"`
 	NoDeposit        bool     `protobuf:"varint,35,opt,name=no_deposit,json=noDeposit,proto3" json:"no_deposit,omitempty"`
-	DepositMonthsMax int32    `protobuf:"varint,36,opt,name=deposit_months_max,json=depositMonthsMax,proto3" json:"deposit_months_max,omitempty"` // -1 disables
-	DepositAmountMax int64    `protobuf:"varint,37,opt,name=deposit_amount_max,json=depositAmountMax,proto3" json:"deposit_amount_max,omitempty"` // -1 disables
+	DepositMonthsMax *int32   `protobuf:"varint,36,opt,name=deposit_months_max,json=depositMonthsMax,proto3,oneof" json:"deposit_months_max,omitempty"` // 0 means "no deposit at all"
+	DepositAmountMax *int64   `protobuf:"varint,37,opt,name=deposit_amount_max,json=depositAmountMax,proto3,oneof" json:"deposit_amount_max,omitempty"`
 	Breakfast        bool     `protobuf:"varint,38,opt,name=breakfast,proto3" json:"breakfast,omitempty"`
 	MonthlyStay      bool     `protobuf:"varint,39,opt,name=monthly_stay,json=monthlyStay,proto3" json:"monthly_stay,omitempty"`
 	BuiltFrom        int32    `protobuf:"varint,40,opt,name=built_from,json=builtFrom,proto3" json:"built_from,omitempty"`
@@ -762,8 +764,8 @@ func (x *ListStaysRequest) GetPlaceTypes() []string {
 }
 
 func (x *ListStaysRequest) GetBedrooms() int32 {
-	if x != nil {
-		return x.Bedrooms
+	if x != nil && x.Bedrooms != nil {
+		return *x.Bedrooms
 	}
 	return 0
 }
@@ -783,15 +785,15 @@ func (x *ListStaysRequest) GetPriceBasis() string {
 }
 
 func (x *ListStaysRequest) GetPriceMin() int64 {
-	if x != nil {
-		return x.PriceMin
+	if x != nil && x.PriceMin != nil {
+		return *x.PriceMin
 	}
 	return 0
 }
 
 func (x *ListStaysRequest) GetPriceMax() int64 {
-	if x != nil {
-		return x.PriceMax
+	if x != nil && x.PriceMax != nil {
+		return *x.PriceMax
 	}
 	return 0
 }
@@ -902,15 +904,15 @@ func (x *ListStaysRequest) GetNoDeposit() bool {
 }
 
 func (x *ListStaysRequest) GetDepositMonthsMax() int32 {
-	if x != nil {
-		return x.DepositMonthsMax
+	if x != nil && x.DepositMonthsMax != nil {
+		return *x.DepositMonthsMax
 	}
 	return 0
 }
 
 func (x *ListStaysRequest) GetDepositAmountMax() int64 {
-	if x != nil {
-		return x.DepositAmountMax
+	if x != nil && x.DepositAmountMax != nil {
+		return *x.DepositAmountMax
 	}
 	return 0
 }
@@ -1806,7 +1808,7 @@ const file_pmapa_stay_v1_stay_proto_rawDesc = "" +
 	"\x05stays\x18\x01 \x03(\v2\x13.pmapa.stay.v1.StayR\x05stays\x12\x1f\n" +
 	"\vnext_cursor\x18\x02 \x01(\tR\n" +
 	"nextCursor\x12\x14\n" +
-	"\x05total\x18\x03 \x01(\x05R\x05total\"\xaa\x0e\n" +
+	"\x05total\x18\x03 \x01(\x05R\x05total\"\x9a\x0f\n" +
 	"\x10ListStaysRequest\x12\x12\n" +
 	"\x04mode\x18\x01 \x01(\tR\x04mode\x12\x12\n" +
 	"\x04city\x18\x02 \x01(\tR\x04city\x12\x1a\n" +
@@ -1824,13 +1826,13 @@ const file_pmapa_stay_v1_stay_proto_rawDesc = "" +
 	"\bsleepers\x18\r \x01(\x05R\bsleepers\x12%\n" +
 	"\x0eproperty_types\x18\x0e \x03(\tR\rpropertyTypes\x12\x1f\n" +
 	"\vplace_types\x18\x0f \x03(\tR\n" +
-	"placeTypes\x12\x1a\n" +
-	"\bbedrooms\x18\x10 \x01(\x05R\bbedrooms\x12\x19\n" +
+	"placeTypes\x12\x1f\n" +
+	"\bbedrooms\x18\x10 \x01(\x05H\x00R\bbedrooms\x88\x01\x01\x12\x19\n" +
 	"\bmin_beds\x18\x11 \x01(\x05R\aminBeds\x12\x1f\n" +
 	"\vprice_basis\x18\x12 \x01(\tR\n" +
-	"priceBasis\x12\x1b\n" +
-	"\tprice_min\x18\x13 \x01(\x03R\bpriceMin\x12\x1b\n" +
-	"\tprice_max\x18\x14 \x01(\x03R\bpriceMax\x12\x1a\n" +
+	"priceBasis\x12 \n" +
+	"\tprice_min\x18\x13 \x01(\x03H\x01R\bpriceMin\x88\x01\x01\x12 \n" +
+	"\tprice_max\x18\x14 \x01(\x03H\x02R\bpriceMax\x88\x01\x01\x12\x1a\n" +
 	"\bcurrency\x18\x15 \x01(\tR\bcurrency\x12\x19\n" +
 	"\barea_min\x18\x16 \x01(\x05R\aareaMin\x12\x19\n" +
 	"\barea_max\x18\x17 \x01(\x05R\aareaMax\x12\x1c\n" +
@@ -1848,9 +1850,9 @@ const file_pmapa_stay_v1_stay_proto_rawDesc = "" +
 	"\x0fweekly_discount\x18! \x01(\bR\x0eweeklyDiscount\x12)\n" +
 	"\x10monthly_discount\x18\" \x01(\bR\x0fmonthlyDiscount\x12\x1d\n" +
 	"\n" +
-	"no_deposit\x18# \x01(\bR\tnoDeposit\x12,\n" +
-	"\x12deposit_months_max\x18$ \x01(\x05R\x10depositMonthsMax\x12,\n" +
-	"\x12deposit_amount_max\x18% \x01(\x03R\x10depositAmountMax\x12\x1c\n" +
+	"no_deposit\x18# \x01(\bR\tnoDeposit\x121\n" +
+	"\x12deposit_months_max\x18$ \x01(\x05H\x03R\x10depositMonthsMax\x88\x01\x01\x121\n" +
+	"\x12deposit_amount_max\x18% \x01(\x03H\x04R\x10depositAmountMax\x88\x01\x01\x12\x1c\n" +
 	"\tbreakfast\x18& \x01(\bR\tbreakfast\x12!\n" +
 	"\fmonthly_stay\x18' \x01(\bR\vmonthlyStay\x12\x1d\n" +
 	"\n" +
@@ -1873,7 +1875,14 @@ const file_pmapa_stay_v1_stay_proto_rawDesc = "" +
 	"\rexclude_words\x187 \x01(\tR\fexcludeWords\x12\x12\n" +
 	"\x04sort\x188 \x01(\tR\x04sort\x12\x16\n" +
 	"\x06cursor\x189 \x01(\tR\x06cursor\x12\x14\n" +
-	"\x05limit\x18: \x01(\x05R\x05limit\"@\n" +
+	"\x05limit\x18: \x01(\x05R\x05limitB\v\n" +
+	"\t_bedroomsB\f\n" +
+	"\n" +
+	"_price_minB\f\n" +
+	"\n" +
+	"_price_maxB\x15\n" +
+	"\x13_deposit_months_maxB\x15\n" +
+	"\x13_deposit_amount_max\"@\n" +
 	"\x11ListStaysResponse\x12+\n" +
 	"\x04page\x18\x01 \x01(\v2\x17.pmapa.stay.v1.StayPageR\x04page\" \n" +
 	"\x0eGetStayRequest\x12\x0e\n" +
@@ -1988,6 +1997,7 @@ func file_pmapa_stay_v1_stay_proto_init() {
 	if File_pmapa_stay_v1_stay_proto != nil {
 		return
 	}
+	file_pmapa_stay_v1_stay_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

@@ -118,12 +118,14 @@ message ListStaysRequest {
 
   repeated string property_types = 14;
   repeated string place_types = 15;
-  int32 bedrooms = 16;        // -1 disables, 0 = studio, 5 = "5 or more"
+  // Explicitly optional: 0 means a studio, so "unset" needs presence rather
+  // than a sentinel a client can forget to send.
+  optional int32 bedrooms = 16;   // 0 = studio, 5 = "5 or more"
   int32 min_beds = 17;
 
   string price_basis = 18;    // night | month | total | unit | sqm
-  int64 price_min = 19;
-  int64 price_max = 20;
+  optional int64 price_min = 19;
+  optional int64 price_max = 20;
   string currency = 21;       // pins the currency when a bound is set
 
   int32 area_min = 22;
@@ -142,8 +144,8 @@ message ListStaysRequest {
   bool weekly_discount = 33;
   bool monthly_discount = 34;
   bool no_deposit = 35;
-  int32 deposit_months_max = 36;   // -1 disables
-  int64 deposit_amount_max = 37;   // -1 disables
+  optional int32 deposit_months_max = 36;  // 0 means "no deposit at all"
+  optional int64 deposit_amount_max = 37;
   bool breakfast = 38;
   bool monthly_stay = 39;
 

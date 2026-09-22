@@ -167,11 +167,35 @@ const ListStaysRequest$json = {
     {'1': 'sleepers', '3': 13, '4': 1, '5': 5, '10': 'sleepers'},
     {'1': 'property_types', '3': 14, '4': 3, '5': 9, '10': 'propertyTypes'},
     {'1': 'place_types', '3': 15, '4': 3, '5': 9, '10': 'placeTypes'},
-    {'1': 'bedrooms', '3': 16, '4': 1, '5': 5, '10': 'bedrooms'},
+    {
+      '1': 'bedrooms',
+      '3': 16,
+      '4': 1,
+      '5': 5,
+      '9': 0,
+      '10': 'bedrooms',
+      '17': true
+    },
     {'1': 'min_beds', '3': 17, '4': 1, '5': 5, '10': 'minBeds'},
     {'1': 'price_basis', '3': 18, '4': 1, '5': 9, '10': 'priceBasis'},
-    {'1': 'price_min', '3': 19, '4': 1, '5': 3, '10': 'priceMin'},
-    {'1': 'price_max', '3': 20, '4': 1, '5': 3, '10': 'priceMax'},
+    {
+      '1': 'price_min',
+      '3': 19,
+      '4': 1,
+      '5': 3,
+      '9': 1,
+      '10': 'priceMin',
+      '17': true
+    },
+    {
+      '1': 'price_max',
+      '3': 20,
+      '4': 1,
+      '5': 3,
+      '9': 2,
+      '10': 'priceMax',
+      '17': true
+    },
     {'1': 'currency', '3': 21, '4': 1, '5': 9, '10': 'currency'},
     {'1': 'area_min', '3': 22, '4': 1, '5': 5, '10': 'areaMin'},
     {'1': 'area_max', '3': 23, '4': 1, '5': 5, '10': 'areaMax'},
@@ -192,14 +216,18 @@ const ListStaysRequest$json = {
       '3': 36,
       '4': 1,
       '5': 5,
-      '10': 'depositMonthsMax'
+      '9': 3,
+      '10': 'depositMonthsMax',
+      '17': true
     },
     {
       '1': 'deposit_amount_max',
       '3': 37,
       '4': 1,
       '5': 3,
-      '10': 'depositAmountMax'
+      '9': 4,
+      '10': 'depositAmountMax',
+      '17': true
     },
     {'1': 'breakfast', '3': 38, '4': 1, '5': 8, '10': 'breakfast'},
     {'1': 'monthly_stay', '3': 39, '4': 1, '5': 8, '10': 'monthlyStay'},
@@ -223,6 +251,13 @@ const ListStaysRequest$json = {
     {'1': 'cursor', '3': 57, '4': 1, '5': 9, '10': 'cursor'},
     {'1': 'limit', '3': 58, '4': 1, '5': 5, '10': 'limit'},
   ],
+  '8': [
+    {'1': '_bedrooms'},
+    {'1': '_price_min'},
+    {'1': '_price_max'},
+    {'1': '_deposit_months_max'},
+    {'1': '_deposit_amount_max'},
+  ],
 };
 
 /// Descriptor for `ListStaysRequest`. Decode as a `google.protobuf.DescriptorProto`.
@@ -234,33 +269,35 @@ final $typed_data.Uint8List listStaysRequestDescriptor = $convert.base64Decode(
     'cm9tEiEKDGF2YWlsYWJsZV90bxgJIAEoCVILYXZhaWxhYmxlVG8SGwoJZmxleF9kYXlzGAogAS'
     'gFUghmbGV4RGF5cxIYCgdpbmZhbnRzGAsgASgFUgdpbmZhbnRzEhIKBHBldHMYDCABKAVSBHBl'
     'dHMSGgoIc2xlZXBlcnMYDSABKAVSCHNsZWVwZXJzEiUKDnByb3BlcnR5X3R5cGVzGA4gAygJUg'
-    '1wcm9wZXJ0eVR5cGVzEh8KC3BsYWNlX3R5cGVzGA8gAygJUgpwbGFjZVR5cGVzEhoKCGJlZHJv'
-    'b21zGBAgASgFUghiZWRyb29tcxIZCghtaW5fYmVkcxgRIAEoBVIHbWluQmVkcxIfCgtwcmljZV'
-    '9iYXNpcxgSIAEoCVIKcHJpY2VCYXNpcxIbCglwcmljZV9taW4YEyABKANSCHByaWNlTWluEhsK'
-    'CXByaWNlX21heBgUIAEoA1IIcHJpY2VNYXgSGgoIY3VycmVuY3kYFSABKAlSCGN1cnJlbmN5Eh'
-    'kKCGFyZWFfbWluGBYgASgFUgdhcmVhTWluEhkKCGFyZWFfbWF4GBcgASgFUgdhcmVhTWF4EhwK'
-    'CWFtZW5pdGllcxgYIAMoCVIJYW1lbml0aWVzEiQKDWFjY2Vzc2liaWxpdHkYGSADKAlSDWFjY2'
-    'Vzc2liaWxpdHkSGgoIc2VjdXJpdHkYGiADKAlSCHNlY3VyaXR5Eh0KCnJhdGluZ19taW4YGyAB'
-    'KAFSCXJhdGluZ01pbhIYCgdib29raW5nGBwgASgJUgdib29raW5nEiIKDGNhbmNlbGxhdGlvbh'
-    'gdIAEoCVIMY2FuY2VsbGF0aW9uEh8KC2hvdXNlX3J1bGVzGB4gAygJUgpob3VzZVJ1bGVzEhkK'
-    'CGNoZWNrX2luGB8gASgJUgdjaGVja0luEiQKDm1heF9taW5fbmlnaHRzGCAgASgFUgxtYXhNaW'
-    '5OaWdodHMSJwoPd2Vla2x5X2Rpc2NvdW50GCEgASgIUg53ZWVrbHlEaXNjb3VudBIpChBtb250'
-    'aGx5X2Rpc2NvdW50GCIgASgIUg9tb250aGx5RGlzY291bnQSHQoKbm9fZGVwb3NpdBgjIAEoCF'
-    'IJbm9EZXBvc2l0EiwKEmRlcG9zaXRfbW9udGhzX21heBgkIAEoBVIQZGVwb3NpdE1vbnRoc01h'
-    'eBIsChJkZXBvc2l0X2Ftb3VudF9tYXgYJSABKANSEGRlcG9zaXRBbW91bnRNYXgSHAoJYnJlYW'
-    'tmYXN0GCYgASgIUglicmVha2Zhc3QSIQoMbW9udGhseV9zdGF5GCcgASgIUgttb250aGx5U3Rh'
-    'eRIdCgpidWlsdF9mcm9tGCggASgFUglidWlsdEZyb20SGQoIYnVpbHRfdG8YKSABKAVSB2J1aW'
-    'x0VG8SIAoLY29tcGxldGlvbnMYKiADKAlSC2NvbXBsZXRpb25zEhoKCGZpbmlzaGVzGCsgAygJ'
-    'UghmaW5pc2hlcxIpChBmb3JlaWduX3B1cmNoYXNlGCwgASgJUg9mb3JlaWduUHVyY2hhc2USHA'
-    'oJb3duZXJzaGlwGC0gASgJUglvd25lcnNoaXASJQoOcmVzaWRlbmN5X29ubHkYLiABKAhSDXJl'
-    'c2lkZW5jeU9ubHkSGwoJeWllbGRfbWluGC8gASgBUgh5aWVsZE1pbhIhCgxtYW5hZ2VkX29ubH'
-    'kYMCABKAhSC21hbmFnZWRPbmx5Eh0KCmhvc3Rfa2luZHMYMSADKAlSCWhvc3RLaW5kcxIjCg12'
-    'ZXJpZmllZF9vbmx5GDIgASgIUgx2ZXJpZmllZE9ubHkSJQoOaG9zdF9sYW5ndWFnZXMYMyADKA'
-    'lSDWhvc3RMYW5ndWFnZXMSGgoIcGF5bWVudHMYNCADKAlSCHBheW1lbnRzEicKD3B1Ymxpc2hl'
-    'ZF9hZnRlchg1IAEoA1IOcHVibGlzaGVkQWZ0ZXISIwoNaW5jbHVkZV93b3Jkcxg2IAEoCVIMaW'
-    '5jbHVkZVdvcmRzEiMKDWV4Y2x1ZGVfd29yZHMYNyABKAlSDGV4Y2x1ZGVXb3JkcxISCgRzb3J0'
-    'GDggASgJUgRzb3J0EhYKBmN1cnNvchg5IAEoCVIGY3Vyc29yEhQKBWxpbWl0GDogASgFUgVsaW'
-    '1pdA==');
+    '1wcm9wZXJ0eVR5cGVzEh8KC3BsYWNlX3R5cGVzGA8gAygJUgpwbGFjZVR5cGVzEh8KCGJlZHJv'
+    'b21zGBAgASgFSABSCGJlZHJvb21ziAEBEhkKCG1pbl9iZWRzGBEgASgFUgdtaW5CZWRzEh8KC3'
+    'ByaWNlX2Jhc2lzGBIgASgJUgpwcmljZUJhc2lzEiAKCXByaWNlX21pbhgTIAEoA0gBUghwcmlj'
+    'ZU1pbogBARIgCglwcmljZV9tYXgYFCABKANIAlIIcHJpY2VNYXiIAQESGgoIY3VycmVuY3kYFS'
+    'ABKAlSCGN1cnJlbmN5EhkKCGFyZWFfbWluGBYgASgFUgdhcmVhTWluEhkKCGFyZWFfbWF4GBcg'
+    'ASgFUgdhcmVhTWF4EhwKCWFtZW5pdGllcxgYIAMoCVIJYW1lbml0aWVzEiQKDWFjY2Vzc2liaW'
+    'xpdHkYGSADKAlSDWFjY2Vzc2liaWxpdHkSGgoIc2VjdXJpdHkYGiADKAlSCHNlY3VyaXR5Eh0K'
+    'CnJhdGluZ19taW4YGyABKAFSCXJhdGluZ01pbhIYCgdib29raW5nGBwgASgJUgdib29raW5nEi'
+    'IKDGNhbmNlbGxhdGlvbhgdIAEoCVIMY2FuY2VsbGF0aW9uEh8KC2hvdXNlX3J1bGVzGB4gAygJ'
+    'Ugpob3VzZVJ1bGVzEhkKCGNoZWNrX2luGB8gASgJUgdjaGVja0luEiQKDm1heF9taW5fbmlnaH'
+    'RzGCAgASgFUgxtYXhNaW5OaWdodHMSJwoPd2Vla2x5X2Rpc2NvdW50GCEgASgIUg53ZWVrbHlE'
+    'aXNjb3VudBIpChBtb250aGx5X2Rpc2NvdW50GCIgASgIUg9tb250aGx5RGlzY291bnQSHQoKbm'
+    '9fZGVwb3NpdBgjIAEoCFIJbm9EZXBvc2l0EjEKEmRlcG9zaXRfbW9udGhzX21heBgkIAEoBUgD'
+    'UhBkZXBvc2l0TW9udGhzTWF4iAEBEjEKEmRlcG9zaXRfYW1vdW50X21heBglIAEoA0gEUhBkZX'
+    'Bvc2l0QW1vdW50TWF4iAEBEhwKCWJyZWFrZmFzdBgmIAEoCFIJYnJlYWtmYXN0EiEKDG1vbnRo'
+    'bHlfc3RheRgnIAEoCFILbW9udGhseVN0YXkSHQoKYnVpbHRfZnJvbRgoIAEoBVIJYnVpbHRGcm'
+    '9tEhkKCGJ1aWx0X3RvGCkgASgFUgdidWlsdFRvEiAKC2NvbXBsZXRpb25zGCogAygJUgtjb21w'
+    'bGV0aW9ucxIaCghmaW5pc2hlcxgrIAMoCVIIZmluaXNoZXMSKQoQZm9yZWlnbl9wdXJjaGFzZR'
+    'gsIAEoCVIPZm9yZWlnblB1cmNoYXNlEhwKCW93bmVyc2hpcBgtIAEoCVIJb3duZXJzaGlwEiUK'
+    'DnJlc2lkZW5jeV9vbmx5GC4gASgIUg1yZXNpZGVuY3lPbmx5EhsKCXlpZWxkX21pbhgvIAEoAV'
+    'IIeWllbGRNaW4SIQoMbWFuYWdlZF9vbmx5GDAgASgIUgttYW5hZ2VkT25seRIdCgpob3N0X2tp'
+    'bmRzGDEgAygJUglob3N0S2luZHMSIwoNdmVyaWZpZWRfb25seRgyIAEoCFIMdmVyaWZpZWRPbm'
+    'x5EiUKDmhvc3RfbGFuZ3VhZ2VzGDMgAygJUg1ob3N0TGFuZ3VhZ2VzEhoKCHBheW1lbnRzGDQg'
+    'AygJUghwYXltZW50cxInCg9wdWJsaXNoZWRfYWZ0ZXIYNSABKANSDnB1Ymxpc2hlZEFmdGVyEi'
+    'MKDWluY2x1ZGVfd29yZHMYNiABKAlSDGluY2x1ZGVXb3JkcxIjCg1leGNsdWRlX3dvcmRzGDcg'
+    'ASgJUgxleGNsdWRlV29yZHMSEgoEc29ydBg4IAEoCVIEc29ydBIWCgZjdXJzb3IYOSABKAlSBm'
+    'N1cnNvchIUCgVsaW1pdBg6IAEoBVIFbGltaXRCCwoJX2JlZHJvb21zQgwKCl9wcmljZV9taW5C'
+    'DAoKX3ByaWNlX21heEIVChNfZGVwb3NpdF9tb250aHNfbWF4QhUKE19kZXBvc2l0X2Ftb3VudF'
+    '9tYXg=');
 
 @$core.Deprecated('Use listStaysResponseDescriptor instead')
 const ListStaysResponse$json = {
