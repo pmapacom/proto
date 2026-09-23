@@ -1735,6 +1735,536 @@ func (x *ListSavedStayIdsResponse) GetNextCursor() string {
 	return ""
 }
 
+type Booking struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Id     string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	StayId string                 `protobuf:"bytes,2,opt,name=stay_id,json=stayId,proto3" json:"stay_id,omitempty"`
+	// Auth user id of the guest, set by the service from the verified caller.
+	GuestId  string `protobuf:"bytes,3,opt,name=guest_id,json=guestId,proto3" json:"guest_id,omitempty"`
+	FromDate string `protobuf:"bytes,4,opt,name=from_date,json=fromDate,proto3" json:"from_date,omitempty"` // ISO date, inclusive
+	ToDate   string `protobuf:"bytes,5,opt,name=to_date,json=toDate,proto3" json:"to_date,omitempty"`       // ISO date, exclusive (the departure day)
+	Adults   int32  `protobuf:"varint,6,opt,name=adults,proto3" json:"adults,omitempty"`
+	Children int32  `protobuf:"varint,7,opt,name=children,proto3" json:"children,omitempty"`
+	Infants  int32  `protobuf:"varint,8,opt,name=infants,proto3" json:"infants,omitempty"`
+	Pets     int32  `protobuf:"varint,9,opt,name=pets,proto3" json:"pets,omitempty"`
+	// The quote as it stood when the booking was made. A later price change must
+	// not rewrite what was agreed.
+	Nights      int32  `protobuf:"varint,10,opt,name=nights,proto3" json:"nights,omitempty"`
+	Nightly     int64  `protobuf:"varint,11,opt,name=nightly,proto3" json:"nightly,omitempty"`
+	Subtotal    int64  `protobuf:"varint,12,opt,name=subtotal,proto3" json:"subtotal,omitempty"`
+	DiscountPct int32  `protobuf:"varint,13,opt,name=discount_pct,json=discountPct,proto3" json:"discount_pct,omitempty"`
+	Total       int64  `protobuf:"varint,14,opt,name=total,proto3" json:"total,omitempty"`
+	Deposit     int64  `protobuf:"varint,15,opt,name=deposit,proto3" json:"deposit,omitempty"`
+	Currency    string `protobuf:"bytes,16,opt,name=currency,proto3" json:"currency,omitempty"`
+	// requested | cancelled. Hosts accepting or declining comes later; until then
+	// every booking a guest makes is a request that holds the dates.
+	Status    string `protobuf:"bytes,17,opt,name=status,proto3" json:"status,omitempty"`
+	CreatedAt int64  `protobuf:"varint,18,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// Enough of the listing to render the row without a second call.
+	StayTitle     string `protobuf:"bytes,19,opt,name=stay_title,json=stayTitle,proto3" json:"stay_title,omitempty"`
+	StayCity      string `protobuf:"bytes,20,opt,name=stay_city,json=stayCity,proto3" json:"stay_city,omitempty"`
+	StayImageUrl  string `protobuf:"bytes,21,opt,name=stay_image_url,json=stayImageUrl,proto3" json:"stay_image_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Booking) Reset() {
+	*x = Booking{}
+	mi := &file_pmapa_stay_v1_stay_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Booking) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Booking) ProtoMessage() {}
+
+func (x *Booking) ProtoReflect() protoreflect.Message {
+	mi := &file_pmapa_stay_v1_stay_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Booking.ProtoReflect.Descriptor instead.
+func (*Booking) Descriptor() ([]byte, []int) {
+	return file_pmapa_stay_v1_stay_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *Booking) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Booking) GetStayId() string {
+	if x != nil {
+		return x.StayId
+	}
+	return ""
+}
+
+func (x *Booking) GetGuestId() string {
+	if x != nil {
+		return x.GuestId
+	}
+	return ""
+}
+
+func (x *Booking) GetFromDate() string {
+	if x != nil {
+		return x.FromDate
+	}
+	return ""
+}
+
+func (x *Booking) GetToDate() string {
+	if x != nil {
+		return x.ToDate
+	}
+	return ""
+}
+
+func (x *Booking) GetAdults() int32 {
+	if x != nil {
+		return x.Adults
+	}
+	return 0
+}
+
+func (x *Booking) GetChildren() int32 {
+	if x != nil {
+		return x.Children
+	}
+	return 0
+}
+
+func (x *Booking) GetInfants() int32 {
+	if x != nil {
+		return x.Infants
+	}
+	return 0
+}
+
+func (x *Booking) GetPets() int32 {
+	if x != nil {
+		return x.Pets
+	}
+	return 0
+}
+
+func (x *Booking) GetNights() int32 {
+	if x != nil {
+		return x.Nights
+	}
+	return 0
+}
+
+func (x *Booking) GetNightly() int64 {
+	if x != nil {
+		return x.Nightly
+	}
+	return 0
+}
+
+func (x *Booking) GetSubtotal() int64 {
+	if x != nil {
+		return x.Subtotal
+	}
+	return 0
+}
+
+func (x *Booking) GetDiscountPct() int32 {
+	if x != nil {
+		return x.DiscountPct
+	}
+	return 0
+}
+
+func (x *Booking) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *Booking) GetDeposit() int64 {
+	if x != nil {
+		return x.Deposit
+	}
+	return 0
+}
+
+func (x *Booking) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
+}
+
+func (x *Booking) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *Booking) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *Booking) GetStayTitle() string {
+	if x != nil {
+		return x.StayTitle
+	}
+	return ""
+}
+
+func (x *Booking) GetStayCity() string {
+	if x != nil {
+		return x.StayCity
+	}
+	return ""
+}
+
+func (x *Booking) GetStayImageUrl() string {
+	if x != nil {
+		return x.StayImageUrl
+	}
+	return ""
+}
+
+type CreateBookingRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	StayId        string                 `protobuf:"bytes,1,opt,name=stay_id,json=stayId,proto3" json:"stay_id,omitempty"`
+	FromDate      string                 `protobuf:"bytes,2,opt,name=from_date,json=fromDate,proto3" json:"from_date,omitempty"`
+	ToDate        string                 `protobuf:"bytes,3,opt,name=to_date,json=toDate,proto3" json:"to_date,omitempty"`
+	Adults        int32                  `protobuf:"varint,4,opt,name=adults,proto3" json:"adults,omitempty"`
+	Children      int32                  `protobuf:"varint,5,opt,name=children,proto3" json:"children,omitempty"`
+	Infants       int32                  `protobuf:"varint,6,opt,name=infants,proto3" json:"infants,omitempty"`
+	Pets          int32                  `protobuf:"varint,7,opt,name=pets,proto3" json:"pets,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateBookingRequest) Reset() {
+	*x = CreateBookingRequest{}
+	mi := &file_pmapa_stay_v1_stay_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBookingRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBookingRequest) ProtoMessage() {}
+
+func (x *CreateBookingRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pmapa_stay_v1_stay_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBookingRequest.ProtoReflect.Descriptor instead.
+func (*CreateBookingRequest) Descriptor() ([]byte, []int) {
+	return file_pmapa_stay_v1_stay_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *CreateBookingRequest) GetStayId() string {
+	if x != nil {
+		return x.StayId
+	}
+	return ""
+}
+
+func (x *CreateBookingRequest) GetFromDate() string {
+	if x != nil {
+		return x.FromDate
+	}
+	return ""
+}
+
+func (x *CreateBookingRequest) GetToDate() string {
+	if x != nil {
+		return x.ToDate
+	}
+	return ""
+}
+
+func (x *CreateBookingRequest) GetAdults() int32 {
+	if x != nil {
+		return x.Adults
+	}
+	return 0
+}
+
+func (x *CreateBookingRequest) GetChildren() int32 {
+	if x != nil {
+		return x.Children
+	}
+	return 0
+}
+
+func (x *CreateBookingRequest) GetInfants() int32 {
+	if x != nil {
+		return x.Infants
+	}
+	return 0
+}
+
+func (x *CreateBookingRequest) GetPets() int32 {
+	if x != nil {
+		return x.Pets
+	}
+	return 0
+}
+
+type CreateBookingResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Booking       *Booking               `protobuf:"bytes,1,opt,name=booking,proto3" json:"booking,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateBookingResponse) Reset() {
+	*x = CreateBookingResponse{}
+	mi := &file_pmapa_stay_v1_stay_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBookingResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBookingResponse) ProtoMessage() {}
+
+func (x *CreateBookingResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pmapa_stay_v1_stay_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBookingResponse.ProtoReflect.Descriptor instead.
+func (*CreateBookingResponse) Descriptor() ([]byte, []int) {
+	return file_pmapa_stay_v1_stay_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *CreateBookingResponse) GetBooking() *Booking {
+	if x != nil {
+		return x.Booking
+	}
+	return nil
+}
+
+type ListMyBookingsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cursor        string                 `protobuf:"bytes,1,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"` // 1..200, default 50
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMyBookingsRequest) Reset() {
+	*x = ListMyBookingsRequest{}
+	mi := &file_pmapa_stay_v1_stay_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMyBookingsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMyBookingsRequest) ProtoMessage() {}
+
+func (x *ListMyBookingsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pmapa_stay_v1_stay_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMyBookingsRequest.ProtoReflect.Descriptor instead.
+func (*ListMyBookingsRequest) Descriptor() ([]byte, []int) {
+	return file_pmapa_stay_v1_stay_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ListMyBookingsRequest) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
+func (x *ListMyBookingsRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+type ListMyBookingsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Bookings      []*Booking             `protobuf:"bytes,1,rep,name=bookings,proto3" json:"bookings,omitempty"`
+	NextCursor    string                 `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3" json:"next_cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMyBookingsResponse) Reset() {
+	*x = ListMyBookingsResponse{}
+	mi := &file_pmapa_stay_v1_stay_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMyBookingsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMyBookingsResponse) ProtoMessage() {}
+
+func (x *ListMyBookingsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pmapa_stay_v1_stay_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMyBookingsResponse.ProtoReflect.Descriptor instead.
+func (*ListMyBookingsResponse) Descriptor() ([]byte, []int) {
+	return file_pmapa_stay_v1_stay_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *ListMyBookingsResponse) GetBookings() []*Booking {
+	if x != nil {
+		return x.Bookings
+	}
+	return nil
+}
+
+func (x *ListMyBookingsResponse) GetNextCursor() string {
+	if x != nil {
+		return x.NextCursor
+	}
+	return ""
+}
+
+type CancelBookingRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CancelBookingRequest) Reset() {
+	*x = CancelBookingRequest{}
+	mi := &file_pmapa_stay_v1_stay_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CancelBookingRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelBookingRequest) ProtoMessage() {}
+
+func (x *CancelBookingRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pmapa_stay_v1_stay_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelBookingRequest.ProtoReflect.Descriptor instead.
+func (*CancelBookingRequest) Descriptor() ([]byte, []int) {
+	return file_pmapa_stay_v1_stay_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *CancelBookingRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type CancelBookingResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CancelBookingResponse) Reset() {
+	*x = CancelBookingResponse{}
+	mi := &file_pmapa_stay_v1_stay_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CancelBookingResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelBookingResponse) ProtoMessage() {}
+
+func (x *CancelBookingResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pmapa_stay_v1_stay_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelBookingResponse.ProtoReflect.Descriptor instead.
+func (*CancelBookingResponse) Descriptor() ([]byte, []int) {
+	return file_pmapa_stay_v1_stay_proto_rawDescGZIP(), []int{24}
+}
+
 var File_pmapa_stay_v1_stay_proto protoreflect.FileDescriptor
 
 const file_pmapa_stay_v1_stay_proto_rawDesc = "" +
@@ -1915,7 +2445,52 @@ const file_pmapa_stay_v1_stay_proto_rawDesc = "" +
 	"\x18ListSavedStayIdsResponse\x12\x19\n" +
 	"\bstay_ids\x18\x01 \x03(\tR\astayIds\x12\x1f\n" +
 	"\vnext_cursor\x18\x02 \x01(\tR\n" +
-	"nextCursor2\x9f\x05\n" +
+	"nextCursor\"\xbb\x04\n" +
+	"\aBooking\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
+	"\astay_id\x18\x02 \x01(\tR\x06stayId\x12\x19\n" +
+	"\bguest_id\x18\x03 \x01(\tR\aguestId\x12\x1b\n" +
+	"\tfrom_date\x18\x04 \x01(\tR\bfromDate\x12\x17\n" +
+	"\ato_date\x18\x05 \x01(\tR\x06toDate\x12\x16\n" +
+	"\x06adults\x18\x06 \x01(\x05R\x06adults\x12\x1a\n" +
+	"\bchildren\x18\a \x01(\x05R\bchildren\x12\x18\n" +
+	"\ainfants\x18\b \x01(\x05R\ainfants\x12\x12\n" +
+	"\x04pets\x18\t \x01(\x05R\x04pets\x12\x16\n" +
+	"\x06nights\x18\n" +
+	" \x01(\x05R\x06nights\x12\x18\n" +
+	"\anightly\x18\v \x01(\x03R\anightly\x12\x1a\n" +
+	"\bsubtotal\x18\f \x01(\x03R\bsubtotal\x12!\n" +
+	"\fdiscount_pct\x18\r \x01(\x05R\vdiscountPct\x12\x14\n" +
+	"\x05total\x18\x0e \x01(\x03R\x05total\x12\x18\n" +
+	"\adeposit\x18\x0f \x01(\x03R\adeposit\x12\x1a\n" +
+	"\bcurrency\x18\x10 \x01(\tR\bcurrency\x12\x16\n" +
+	"\x06status\x18\x11 \x01(\tR\x06status\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x12 \x01(\x03R\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"stay_title\x18\x13 \x01(\tR\tstayTitle\x12\x1b\n" +
+	"\tstay_city\x18\x14 \x01(\tR\bstayCity\x12$\n" +
+	"\x0estay_image_url\x18\x15 \x01(\tR\fstayImageUrl\"\xc7\x01\n" +
+	"\x14CreateBookingRequest\x12\x17\n" +
+	"\astay_id\x18\x01 \x01(\tR\x06stayId\x12\x1b\n" +
+	"\tfrom_date\x18\x02 \x01(\tR\bfromDate\x12\x17\n" +
+	"\ato_date\x18\x03 \x01(\tR\x06toDate\x12\x16\n" +
+	"\x06adults\x18\x04 \x01(\x05R\x06adults\x12\x1a\n" +
+	"\bchildren\x18\x05 \x01(\x05R\bchildren\x12\x18\n" +
+	"\ainfants\x18\x06 \x01(\x05R\ainfants\x12\x12\n" +
+	"\x04pets\x18\a \x01(\x05R\x04pets\"I\n" +
+	"\x15CreateBookingResponse\x120\n" +
+	"\abooking\x18\x01 \x01(\v2\x16.pmapa.stay.v1.BookingR\abooking\"E\n" +
+	"\x15ListMyBookingsRequest\x12\x16\n" +
+	"\x06cursor\x18\x01 \x01(\tR\x06cursor\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\"m\n" +
+	"\x16ListMyBookingsResponse\x122\n" +
+	"\bbookings\x18\x01 \x03(\v2\x16.pmapa.stay.v1.BookingR\bbookings\x12\x1f\n" +
+	"\vnext_cursor\x18\x02 \x01(\tR\n" +
+	"nextCursor\"&\n" +
+	"\x14CancelBookingRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x17\n" +
+	"\x15CancelBookingResponse2\xb6\a\n" +
 	"\vStayService\x12N\n" +
 	"\tListStays\x12\x1f.pmapa.stay.v1.ListStaysRequest\x1a .pmapa.stay.v1.ListStaysResponse\x12H\n" +
 	"\aGetStay\x12\x1d.pmapa.stay.v1.GetStayRequest\x1a\x1e.pmapa.stay.v1.GetStayResponse\x12T\n" +
@@ -1926,7 +2501,10 @@ const file_pmapa_stay_v1_stay_proto_rawDesc = "" +
 	"\bSaveStay\x12\x1e.pmapa.stay.v1.SaveStayRequest\x1a\x1f.pmapa.stay.v1.SaveStayResponse\x12Q\n" +
 	"\n" +
 	"UnsaveStay\x12 .pmapa.stay.v1.UnsaveStayRequest\x1a!.pmapa.stay.v1.UnsaveStayResponse\x12c\n" +
-	"\x10ListSavedStayIds\x12&.pmapa.stay.v1.ListSavedStayIdsRequest\x1a'.pmapa.stay.v1.ListSavedStayIdsResponseB\xab\x01\n" +
+	"\x10ListSavedStayIds\x12&.pmapa.stay.v1.ListSavedStayIdsRequest\x1a'.pmapa.stay.v1.ListSavedStayIdsResponse\x12Z\n" +
+	"\rCreateBooking\x12#.pmapa.stay.v1.CreateBookingRequest\x1a$.pmapa.stay.v1.CreateBookingResponse\x12]\n" +
+	"\x0eListMyBookings\x12$.pmapa.stay.v1.ListMyBookingsRequest\x1a%.pmapa.stay.v1.ListMyBookingsResponse\x12Z\n" +
+	"\rCancelBooking\x12#.pmapa.stay.v1.CancelBookingRequest\x1a$.pmapa.stay.v1.CancelBookingResponseB\xab\x01\n" +
 	"\x11com.pmapa.stay.v1B\tStayProtoP\x01Z5github.com/pmapacom/proto/gen/go/pmapa/stay/v1;stayv1\xa2\x02\x03PSX\xaa\x02\rPmapa.Stay.V1\xca\x02\rPmapa\\Stay\\V1\xe2\x02\x19Pmapa\\Stay\\V1\\GPBMetadata\xea\x02\x0fPmapa::Stay::V1b\x06proto3"
 
 var (
@@ -1941,7 +2519,7 @@ func file_pmapa_stay_v1_stay_proto_rawDescGZIP() []byte {
 	return file_pmapa_stay_v1_stay_proto_rawDescData
 }
 
-var file_pmapa_stay_v1_stay_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_pmapa_stay_v1_stay_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_pmapa_stay_v1_stay_proto_goTypes = []any{
 	(*Stay)(nil),                     // 0: pmapa.stay.v1.Stay
 	(*StayPage)(nil),                 // 1: pmapa.stay.v1.StayPage
@@ -1961,6 +2539,13 @@ var file_pmapa_stay_v1_stay_proto_goTypes = []any{
 	(*UnsaveStayResponse)(nil),       // 15: pmapa.stay.v1.UnsaveStayResponse
 	(*ListSavedStayIdsRequest)(nil),  // 16: pmapa.stay.v1.ListSavedStayIdsRequest
 	(*ListSavedStayIdsResponse)(nil), // 17: pmapa.stay.v1.ListSavedStayIdsResponse
+	(*Booking)(nil),                  // 18: pmapa.stay.v1.Booking
+	(*CreateBookingRequest)(nil),     // 19: pmapa.stay.v1.CreateBookingRequest
+	(*CreateBookingResponse)(nil),    // 20: pmapa.stay.v1.CreateBookingResponse
+	(*ListMyBookingsRequest)(nil),    // 21: pmapa.stay.v1.ListMyBookingsRequest
+	(*ListMyBookingsResponse)(nil),   // 22: pmapa.stay.v1.ListMyBookingsResponse
+	(*CancelBookingRequest)(nil),     // 23: pmapa.stay.v1.CancelBookingRequest
+	(*CancelBookingResponse)(nil),    // 24: pmapa.stay.v1.CancelBookingResponse
 }
 var file_pmapa_stay_v1_stay_proto_depIdxs = []int32{
 	0,  // 0: pmapa.stay.v1.StayPage.stays:type_name -> pmapa.stay.v1.Stay
@@ -1969,27 +2554,35 @@ var file_pmapa_stay_v1_stay_proto_depIdxs = []int32{
 	0,  // 3: pmapa.stay.v1.PutStayRequest.stay:type_name -> pmapa.stay.v1.Stay
 	0,  // 4: pmapa.stay.v1.PutStayResponse.stay:type_name -> pmapa.stay.v1.Stay
 	0,  // 5: pmapa.stay.v1.ListMyStaysResponse.stays:type_name -> pmapa.stay.v1.Stay
-	2,  // 6: pmapa.stay.v1.StayService.ListStays:input_type -> pmapa.stay.v1.ListStaysRequest
-	4,  // 7: pmapa.stay.v1.StayService.GetStay:input_type -> pmapa.stay.v1.GetStayRequest
-	10, // 8: pmapa.stay.v1.StayService.ListMyStays:input_type -> pmapa.stay.v1.ListMyStaysRequest
-	6,  // 9: pmapa.stay.v1.StayService.PutStay:input_type -> pmapa.stay.v1.PutStayRequest
-	8,  // 10: pmapa.stay.v1.StayService.DeleteStay:input_type -> pmapa.stay.v1.DeleteStayRequest
-	12, // 11: pmapa.stay.v1.StayService.SaveStay:input_type -> pmapa.stay.v1.SaveStayRequest
-	14, // 12: pmapa.stay.v1.StayService.UnsaveStay:input_type -> pmapa.stay.v1.UnsaveStayRequest
-	16, // 13: pmapa.stay.v1.StayService.ListSavedStayIds:input_type -> pmapa.stay.v1.ListSavedStayIdsRequest
-	3,  // 14: pmapa.stay.v1.StayService.ListStays:output_type -> pmapa.stay.v1.ListStaysResponse
-	5,  // 15: pmapa.stay.v1.StayService.GetStay:output_type -> pmapa.stay.v1.GetStayResponse
-	11, // 16: pmapa.stay.v1.StayService.ListMyStays:output_type -> pmapa.stay.v1.ListMyStaysResponse
-	7,  // 17: pmapa.stay.v1.StayService.PutStay:output_type -> pmapa.stay.v1.PutStayResponse
-	9,  // 18: pmapa.stay.v1.StayService.DeleteStay:output_type -> pmapa.stay.v1.DeleteStayResponse
-	13, // 19: pmapa.stay.v1.StayService.SaveStay:output_type -> pmapa.stay.v1.SaveStayResponse
-	15, // 20: pmapa.stay.v1.StayService.UnsaveStay:output_type -> pmapa.stay.v1.UnsaveStayResponse
-	17, // 21: pmapa.stay.v1.StayService.ListSavedStayIds:output_type -> pmapa.stay.v1.ListSavedStayIdsResponse
-	14, // [14:22] is the sub-list for method output_type
-	6,  // [6:14] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	18, // 6: pmapa.stay.v1.CreateBookingResponse.booking:type_name -> pmapa.stay.v1.Booking
+	18, // 7: pmapa.stay.v1.ListMyBookingsResponse.bookings:type_name -> pmapa.stay.v1.Booking
+	2,  // 8: pmapa.stay.v1.StayService.ListStays:input_type -> pmapa.stay.v1.ListStaysRequest
+	4,  // 9: pmapa.stay.v1.StayService.GetStay:input_type -> pmapa.stay.v1.GetStayRequest
+	10, // 10: pmapa.stay.v1.StayService.ListMyStays:input_type -> pmapa.stay.v1.ListMyStaysRequest
+	6,  // 11: pmapa.stay.v1.StayService.PutStay:input_type -> pmapa.stay.v1.PutStayRequest
+	8,  // 12: pmapa.stay.v1.StayService.DeleteStay:input_type -> pmapa.stay.v1.DeleteStayRequest
+	12, // 13: pmapa.stay.v1.StayService.SaveStay:input_type -> pmapa.stay.v1.SaveStayRequest
+	14, // 14: pmapa.stay.v1.StayService.UnsaveStay:input_type -> pmapa.stay.v1.UnsaveStayRequest
+	16, // 15: pmapa.stay.v1.StayService.ListSavedStayIds:input_type -> pmapa.stay.v1.ListSavedStayIdsRequest
+	19, // 16: pmapa.stay.v1.StayService.CreateBooking:input_type -> pmapa.stay.v1.CreateBookingRequest
+	21, // 17: pmapa.stay.v1.StayService.ListMyBookings:input_type -> pmapa.stay.v1.ListMyBookingsRequest
+	23, // 18: pmapa.stay.v1.StayService.CancelBooking:input_type -> pmapa.stay.v1.CancelBookingRequest
+	3,  // 19: pmapa.stay.v1.StayService.ListStays:output_type -> pmapa.stay.v1.ListStaysResponse
+	5,  // 20: pmapa.stay.v1.StayService.GetStay:output_type -> pmapa.stay.v1.GetStayResponse
+	11, // 21: pmapa.stay.v1.StayService.ListMyStays:output_type -> pmapa.stay.v1.ListMyStaysResponse
+	7,  // 22: pmapa.stay.v1.StayService.PutStay:output_type -> pmapa.stay.v1.PutStayResponse
+	9,  // 23: pmapa.stay.v1.StayService.DeleteStay:output_type -> pmapa.stay.v1.DeleteStayResponse
+	13, // 24: pmapa.stay.v1.StayService.SaveStay:output_type -> pmapa.stay.v1.SaveStayResponse
+	15, // 25: pmapa.stay.v1.StayService.UnsaveStay:output_type -> pmapa.stay.v1.UnsaveStayResponse
+	17, // 26: pmapa.stay.v1.StayService.ListSavedStayIds:output_type -> pmapa.stay.v1.ListSavedStayIdsResponse
+	20, // 27: pmapa.stay.v1.StayService.CreateBooking:output_type -> pmapa.stay.v1.CreateBookingResponse
+	22, // 28: pmapa.stay.v1.StayService.ListMyBookings:output_type -> pmapa.stay.v1.ListMyBookingsResponse
+	24, // 29: pmapa.stay.v1.StayService.CancelBooking:output_type -> pmapa.stay.v1.CancelBookingResponse
+	19, // [19:30] is the sub-list for method output_type
+	8,  // [8:19] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_pmapa_stay_v1_stay_proto_init() }
@@ -2004,7 +2597,7 @@ func file_pmapa_stay_v1_stay_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pmapa_stay_v1_stay_proto_rawDesc), len(file_pmapa_stay_v1_stay_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

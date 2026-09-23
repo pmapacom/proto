@@ -37,6 +37,12 @@ abstract class StayServiceBase extends $pb.GeneratedService {
       $pb.ServerContext ctx, $0.UnsaveStayRequest request);
   $async.Future<$0.ListSavedStayIdsResponse> listSavedStayIds(
       $pb.ServerContext ctx, $0.ListSavedStayIdsRequest request);
+  $async.Future<$0.CreateBookingResponse> createBooking(
+      $pb.ServerContext ctx, $0.CreateBookingRequest request);
+  $async.Future<$0.ListMyBookingsResponse> listMyBookings(
+      $pb.ServerContext ctx, $0.ListMyBookingsRequest request);
+  $async.Future<$0.CancelBookingResponse> cancelBooking(
+      $pb.ServerContext ctx, $0.CancelBookingRequest request);
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
@@ -56,6 +62,12 @@ abstract class StayServiceBase extends $pb.GeneratedService {
         return $0.UnsaveStayRequest();
       case 'ListSavedStayIds':
         return $0.ListSavedStayIdsRequest();
+      case 'CreateBooking':
+        return $0.CreateBookingRequest();
+      case 'ListMyBookings':
+        return $0.ListMyBookingsRequest();
+      case 'CancelBooking':
+        return $0.CancelBookingRequest();
       default:
         throw $core.ArgumentError('Unknown method: $methodName');
     }
@@ -80,6 +92,12 @@ abstract class StayServiceBase extends $pb.GeneratedService {
         return unsaveStay(ctx, request as $0.UnsaveStayRequest);
       case 'ListSavedStayIds':
         return listSavedStayIds(ctx, request as $0.ListSavedStayIdsRequest);
+      case 'CreateBooking':
+        return createBooking(ctx, request as $0.CreateBookingRequest);
+      case 'ListMyBookings':
+        return listMyBookings(ctx, request as $0.ListMyBookingsRequest);
+      case 'CancelBooking':
+        return cancelBooking(ctx, request as $0.CancelBookingRequest);
       default:
         throw $core.ArgumentError('Unknown method: $methodName');
     }

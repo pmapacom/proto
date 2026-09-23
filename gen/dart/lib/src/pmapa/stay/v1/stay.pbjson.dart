@@ -519,6 +519,145 @@ final $typed_data.Uint8List listSavedStayIdsResponseDescriptor =
         'ChhMaXN0U2F2ZWRTdGF5SWRzUmVzcG9uc2USGQoIc3RheV9pZHMYASADKAlSB3N0YXlJZHMSHw'
         'oLbmV4dF9jdXJzb3IYAiABKAlSCm5leHRDdXJzb3I=');
 
+@$core.Deprecated('Use bookingDescriptor instead')
+const Booking$json = {
+  '1': 'Booking',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    {'1': 'stay_id', '3': 2, '4': 1, '5': 9, '10': 'stayId'},
+    {'1': 'guest_id', '3': 3, '4': 1, '5': 9, '10': 'guestId'},
+    {'1': 'from_date', '3': 4, '4': 1, '5': 9, '10': 'fromDate'},
+    {'1': 'to_date', '3': 5, '4': 1, '5': 9, '10': 'toDate'},
+    {'1': 'adults', '3': 6, '4': 1, '5': 5, '10': 'adults'},
+    {'1': 'children', '3': 7, '4': 1, '5': 5, '10': 'children'},
+    {'1': 'infants', '3': 8, '4': 1, '5': 5, '10': 'infants'},
+    {'1': 'pets', '3': 9, '4': 1, '5': 5, '10': 'pets'},
+    {'1': 'nights', '3': 10, '4': 1, '5': 5, '10': 'nights'},
+    {'1': 'nightly', '3': 11, '4': 1, '5': 3, '10': 'nightly'},
+    {'1': 'subtotal', '3': 12, '4': 1, '5': 3, '10': 'subtotal'},
+    {'1': 'discount_pct', '3': 13, '4': 1, '5': 5, '10': 'discountPct'},
+    {'1': 'total', '3': 14, '4': 1, '5': 3, '10': 'total'},
+    {'1': 'deposit', '3': 15, '4': 1, '5': 3, '10': 'deposit'},
+    {'1': 'currency', '3': 16, '4': 1, '5': 9, '10': 'currency'},
+    {'1': 'status', '3': 17, '4': 1, '5': 9, '10': 'status'},
+    {'1': 'created_at', '3': 18, '4': 1, '5': 3, '10': 'createdAt'},
+    {'1': 'stay_title', '3': 19, '4': 1, '5': 9, '10': 'stayTitle'},
+    {'1': 'stay_city', '3': 20, '4': 1, '5': 9, '10': 'stayCity'},
+    {'1': 'stay_image_url', '3': 21, '4': 1, '5': 9, '10': 'stayImageUrl'},
+  ],
+};
+
+/// Descriptor for `Booking`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List bookingDescriptor = $convert.base64Decode(
+    'CgdCb29raW5nEg4KAmlkGAEgASgJUgJpZBIXCgdzdGF5X2lkGAIgASgJUgZzdGF5SWQSGQoIZ3'
+    'Vlc3RfaWQYAyABKAlSB2d1ZXN0SWQSGwoJZnJvbV9kYXRlGAQgASgJUghmcm9tRGF0ZRIXCgd0'
+    'b19kYXRlGAUgASgJUgZ0b0RhdGUSFgoGYWR1bHRzGAYgASgFUgZhZHVsdHMSGgoIY2hpbGRyZW'
+    '4YByABKAVSCGNoaWxkcmVuEhgKB2luZmFudHMYCCABKAVSB2luZmFudHMSEgoEcGV0cxgJIAEo'
+    'BVIEcGV0cxIWCgZuaWdodHMYCiABKAVSBm5pZ2h0cxIYCgduaWdodGx5GAsgASgDUgduaWdodG'
+    'x5EhoKCHN1YnRvdGFsGAwgASgDUghzdWJ0b3RhbBIhCgxkaXNjb3VudF9wY3QYDSABKAVSC2Rp'
+    'c2NvdW50UGN0EhQKBXRvdGFsGA4gASgDUgV0b3RhbBIYCgdkZXBvc2l0GA8gASgDUgdkZXBvc2'
+    'l0EhoKCGN1cnJlbmN5GBAgASgJUghjdXJyZW5jeRIWCgZzdGF0dXMYESABKAlSBnN0YXR1cxId'
+    'CgpjcmVhdGVkX2F0GBIgASgDUgljcmVhdGVkQXQSHQoKc3RheV90aXRsZRgTIAEoCVIJc3RheV'
+    'RpdGxlEhsKCXN0YXlfY2l0eRgUIAEoCVIIc3RheUNpdHkSJAoOc3RheV9pbWFnZV91cmwYFSAB'
+    'KAlSDHN0YXlJbWFnZVVybA==');
+
+@$core.Deprecated('Use createBookingRequestDescriptor instead')
+const CreateBookingRequest$json = {
+  '1': 'CreateBookingRequest',
+  '2': [
+    {'1': 'stay_id', '3': 1, '4': 1, '5': 9, '10': 'stayId'},
+    {'1': 'from_date', '3': 2, '4': 1, '5': 9, '10': 'fromDate'},
+    {'1': 'to_date', '3': 3, '4': 1, '5': 9, '10': 'toDate'},
+    {'1': 'adults', '3': 4, '4': 1, '5': 5, '10': 'adults'},
+    {'1': 'children', '3': 5, '4': 1, '5': 5, '10': 'children'},
+    {'1': 'infants', '3': 6, '4': 1, '5': 5, '10': 'infants'},
+    {'1': 'pets', '3': 7, '4': 1, '5': 5, '10': 'pets'},
+  ],
+};
+
+/// Descriptor for `CreateBookingRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List createBookingRequestDescriptor = $convert.base64Decode(
+    'ChRDcmVhdGVCb29raW5nUmVxdWVzdBIXCgdzdGF5X2lkGAEgASgJUgZzdGF5SWQSGwoJZnJvbV'
+    '9kYXRlGAIgASgJUghmcm9tRGF0ZRIXCgd0b19kYXRlGAMgASgJUgZ0b0RhdGUSFgoGYWR1bHRz'
+    'GAQgASgFUgZhZHVsdHMSGgoIY2hpbGRyZW4YBSABKAVSCGNoaWxkcmVuEhgKB2luZmFudHMYBi'
+    'ABKAVSB2luZmFudHMSEgoEcGV0cxgHIAEoBVIEcGV0cw==');
+
+@$core.Deprecated('Use createBookingResponseDescriptor instead')
+const CreateBookingResponse$json = {
+  '1': 'CreateBookingResponse',
+  '2': [
+    {
+      '1': 'booking',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.pmapa.stay.v1.Booking',
+      '10': 'booking'
+    },
+  ],
+};
+
+/// Descriptor for `CreateBookingResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List createBookingResponseDescriptor = $convert.base64Decode(
+    'ChVDcmVhdGVCb29raW5nUmVzcG9uc2USMAoHYm9va2luZxgBIAEoCzIWLnBtYXBhLnN0YXkudj'
+    'EuQm9va2luZ1IHYm9va2luZw==');
+
+@$core.Deprecated('Use listMyBookingsRequestDescriptor instead')
+const ListMyBookingsRequest$json = {
+  '1': 'ListMyBookingsRequest',
+  '2': [
+    {'1': 'cursor', '3': 1, '4': 1, '5': 9, '10': 'cursor'},
+    {'1': 'limit', '3': 2, '4': 1, '5': 5, '10': 'limit'},
+  ],
+};
+
+/// Descriptor for `ListMyBookingsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List listMyBookingsRequestDescriptor = $convert.base64Decode(
+    'ChVMaXN0TXlCb29raW5nc1JlcXVlc3QSFgoGY3Vyc29yGAEgASgJUgZjdXJzb3ISFAoFbGltaX'
+    'QYAiABKAVSBWxpbWl0');
+
+@$core.Deprecated('Use listMyBookingsResponseDescriptor instead')
+const ListMyBookingsResponse$json = {
+  '1': 'ListMyBookingsResponse',
+  '2': [
+    {
+      '1': 'bookings',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.pmapa.stay.v1.Booking',
+      '10': 'bookings'
+    },
+    {'1': 'next_cursor', '3': 2, '4': 1, '5': 9, '10': 'nextCursor'},
+  ],
+};
+
+/// Descriptor for `ListMyBookingsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List listMyBookingsResponseDescriptor = $convert.base64Decode(
+    'ChZMaXN0TXlCb29raW5nc1Jlc3BvbnNlEjIKCGJvb2tpbmdzGAEgAygLMhYucG1hcGEuc3RheS'
+    '52MS5Cb29raW5nUghib29raW5ncxIfCgtuZXh0X2N1cnNvchgCIAEoCVIKbmV4dEN1cnNvcg==');
+
+@$core.Deprecated('Use cancelBookingRequestDescriptor instead')
+const CancelBookingRequest$json = {
+  '1': 'CancelBookingRequest',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+  ],
+};
+
+/// Descriptor for `CancelBookingRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List cancelBookingRequestDescriptor = $convert
+    .base64Decode('ChRDYW5jZWxCb29raW5nUmVxdWVzdBIOCgJpZBgBIAEoCVICaWQ=');
+
+@$core.Deprecated('Use cancelBookingResponseDescriptor instead')
+const CancelBookingResponse$json = {
+  '1': 'CancelBookingResponse',
+};
+
+/// Descriptor for `CancelBookingResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List cancelBookingResponseDescriptor =
+    $convert.base64Decode('ChVDYW5jZWxCb29raW5nUmVzcG9uc2U=');
+
 const $core.Map<$core.String, $core.dynamic> StayServiceBase$json = {
   '1': 'StayService',
   '2': [
@@ -562,6 +701,21 @@ const $core.Map<$core.String, $core.dynamic> StayServiceBase$json = {
       '2': '.pmapa.stay.v1.ListSavedStayIdsRequest',
       '3': '.pmapa.stay.v1.ListSavedStayIdsResponse'
     },
+    {
+      '1': 'CreateBooking',
+      '2': '.pmapa.stay.v1.CreateBookingRequest',
+      '3': '.pmapa.stay.v1.CreateBookingResponse'
+    },
+    {
+      '1': 'ListMyBookings',
+      '2': '.pmapa.stay.v1.ListMyBookingsRequest',
+      '3': '.pmapa.stay.v1.ListMyBookingsResponse'
+    },
+    {
+      '1': 'CancelBooking',
+      '2': '.pmapa.stay.v1.CancelBookingRequest',
+      '3': '.pmapa.stay.v1.CancelBookingResponse'
+    },
   ],
 };
 
@@ -586,6 +740,13 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>>
   '.pmapa.stay.v1.UnsaveStayResponse': UnsaveStayResponse$json,
   '.pmapa.stay.v1.ListSavedStayIdsRequest': ListSavedStayIdsRequest$json,
   '.pmapa.stay.v1.ListSavedStayIdsResponse': ListSavedStayIdsResponse$json,
+  '.pmapa.stay.v1.CreateBookingRequest': CreateBookingRequest$json,
+  '.pmapa.stay.v1.CreateBookingResponse': CreateBookingResponse$json,
+  '.pmapa.stay.v1.Booking': Booking$json,
+  '.pmapa.stay.v1.ListMyBookingsRequest': ListMyBookingsRequest$json,
+  '.pmapa.stay.v1.ListMyBookingsResponse': ListMyBookingsResponse$json,
+  '.pmapa.stay.v1.CancelBookingRequest': CancelBookingRequest$json,
+  '.pmapa.stay.v1.CancelBookingResponse': CancelBookingResponse$json,
 };
 
 /// Descriptor for `StayService`. Decode as a `google.protobuf.ServiceDescriptorProto`.
@@ -602,4 +763,9 @@ final $typed_data.Uint8List stayServiceDescriptor = $convert.base64Decode(
     'F5EiAucG1hcGEuc3RheS52MS5VbnNhdmVTdGF5UmVxdWVzdBohLnBtYXBhLnN0YXkudjEuVW5z'
     'YXZlU3RheVJlc3BvbnNlEmMKEExpc3RTYXZlZFN0YXlJZHMSJi5wbWFwYS5zdGF5LnYxLkxpc3'
     'RTYXZlZFN0YXlJZHNSZXF1ZXN0GicucG1hcGEuc3RheS52MS5MaXN0U2F2ZWRTdGF5SWRzUmVz'
-    'cG9uc2U=');
+    'cG9uc2USWgoNQ3JlYXRlQm9va2luZxIjLnBtYXBhLnN0YXkudjEuQ3JlYXRlQm9va2luZ1JlcX'
+    'Vlc3QaJC5wbWFwYS5zdGF5LnYxLkNyZWF0ZUJvb2tpbmdSZXNwb25zZRJdCg5MaXN0TXlCb29r'
+    'aW5ncxIkLnBtYXBhLnN0YXkudjEuTGlzdE15Qm9va2luZ3NSZXF1ZXN0GiUucG1hcGEuc3RheS'
+    '52MS5MaXN0TXlCb29raW5nc1Jlc3BvbnNlEloKDUNhbmNlbEJvb2tpbmcSIy5wbWFwYS5zdGF5'
+    'LnYxLkNhbmNlbEJvb2tpbmdSZXF1ZXN0GiQucG1hcGEuc3RheS52MS5DYW5jZWxCb29raW5nUm'
+    'VzcG9uc2U=');

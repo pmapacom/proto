@@ -230,6 +230,73 @@ message ListSavedStayIdsResponse {
   string next_cursor = 2;
 }
 
+// ---- bookings ---------------------------------------------------------------
+// A guest's request to stay. The service, not the client, works out the nights,
+// the discount and the deposit from the listing's own terms, and refuses dates
+// another booking already holds — a price or a free week asserted by a client
+// is not a fact.
+
+message Booking {
+  string id = 1;
+  string stay_id = 2;
+  // Auth user id of the guest, set by the service from the verified caller.
+  string guest_id = 3;
+
+  string from_date = 4;  // ISO date, inclusive
+  string to_date = 5;    // ISO date, exclusive (the departure day)
+  int32 adults = 6;
+  int32 children = 7;
+  int32 infants = 8;
+  int32 pets = 9;
+
+  // The quote as it stood when the booking was made. A later price change must
+  // not rewrite what was agreed.
+  int32 nights = 10;
+  int64 nightly = 11;
+  int64 subtotal = 12;
+  int32 discount_pct = 13;
+  int64 total = 14;
+  int64 deposit = 15;
+  string currency = 16;
+
+  // requested | cancelled. Hosts accepting or declining comes later; until then
+  // every booking a guest makes is a request that holds the dates.
+  string status = 17;
+  int64 created_at = 18;
+
+  // Enough of the listing to render the row without a second call.
+  string stay_title = 19;
+  string stay_city = 20;
+  string stay_image_url = 21;
+}
+
+message CreateBookingRequest {
+  string stay_id = 1;
+  string from_date = 2;
+  string to_date = 3;
+  int32 adults = 4;
+  int32 children = 5;
+  int32 infants = 6;
+  int32 pets = 7;
+}
+message CreateBookingResponse {
+  Booking booking = 1;
+}
+
+message ListMyBookingsRequest {
+  string cursor = 1;
+  int32 limit = 2;  // 1..200, default 50
+}
+message ListMyBookingsResponse {
+  repeated Booking bookings = 1;
+  string next_cursor = 2;
+}
+
+message CancelBookingRequest {
+  string id = 1;
+}
+message CancelBookingResponse {}
+
 service StayService {
   // browsing — public
   rpc ListStays(ListStaysRequest) returns (ListStaysResponse);
@@ -244,4 +311,9 @@ service StayService {
   rpc SaveStay(SaveStayRequest) returns (SaveStayResponse);
   rpc UnsaveStay(UnsaveStayRequest) returns (UnsaveStayResponse);
   rpc ListSavedStayIds(ListSavedStayIdsRequest) returns (ListSavedStayIdsResponse);
+
+  // bookings
+  rpc CreateBooking(CreateBookingRequest) returns (CreateBookingResponse);
+  rpc ListMyBookings(ListMyBookingsRequest) returns (ListMyBookingsResponse);
+  rpc CancelBooking(CancelBookingRequest) returns (CancelBookingResponse);
 }

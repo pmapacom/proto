@@ -62,6 +62,15 @@ const (
 	// StayServiceListSavedStayIdsProcedure is the fully-qualified name of the StayService's
 	// ListSavedStayIds RPC.
 	StayServiceListSavedStayIdsProcedure = "/pmapa.stay.v1.StayService/ListSavedStayIds"
+	// StayServiceCreateBookingProcedure is the fully-qualified name of the StayService's CreateBooking
+	// RPC.
+	StayServiceCreateBookingProcedure = "/pmapa.stay.v1.StayService/CreateBooking"
+	// StayServiceListMyBookingsProcedure is the fully-qualified name of the StayService's
+	// ListMyBookings RPC.
+	StayServiceListMyBookingsProcedure = "/pmapa.stay.v1.StayService/ListMyBookings"
+	// StayServiceCancelBookingProcedure is the fully-qualified name of the StayService's CancelBooking
+	// RPC.
+	StayServiceCancelBookingProcedure = "/pmapa.stay.v1.StayService/CancelBooking"
 )
 
 // StayServiceClient is a client for the pmapa.stay.v1.StayService service.
@@ -77,6 +86,10 @@ type StayServiceClient interface {
 	SaveStay(context.Context, *connect.Request[v1.SaveStayRequest]) (*connect.Response[v1.SaveStayResponse], error)
 	UnsaveStay(context.Context, *connect.Request[v1.UnsaveStayRequest]) (*connect.Response[v1.UnsaveStayResponse], error)
 	ListSavedStayIds(context.Context, *connect.Request[v1.ListSavedStayIdsRequest]) (*connect.Response[v1.ListSavedStayIdsResponse], error)
+	// bookings
+	CreateBooking(context.Context, *connect.Request[v1.CreateBookingRequest]) (*connect.Response[v1.CreateBookingResponse], error)
+	ListMyBookings(context.Context, *connect.Request[v1.ListMyBookingsRequest]) (*connect.Response[v1.ListMyBookingsResponse], error)
+	CancelBooking(context.Context, *connect.Request[v1.CancelBookingRequest]) (*connect.Response[v1.CancelBookingResponse], error)
 }
 
 // NewStayServiceClient constructs a client for the pmapa.stay.v1.StayService service. By default,
@@ -138,6 +151,24 @@ func NewStayServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(stayServiceMethods.ByName("ListSavedStayIds")),
 			connect.WithClientOptions(opts...),
 		),
+		createBooking: connect.NewClient[v1.CreateBookingRequest, v1.CreateBookingResponse](
+			httpClient,
+			baseURL+StayServiceCreateBookingProcedure,
+			connect.WithSchema(stayServiceMethods.ByName("CreateBooking")),
+			connect.WithClientOptions(opts...),
+		),
+		listMyBookings: connect.NewClient[v1.ListMyBookingsRequest, v1.ListMyBookingsResponse](
+			httpClient,
+			baseURL+StayServiceListMyBookingsProcedure,
+			connect.WithSchema(stayServiceMethods.ByName("ListMyBookings")),
+			connect.WithClientOptions(opts...),
+		),
+		cancelBooking: connect.NewClient[v1.CancelBookingRequest, v1.CancelBookingResponse](
+			httpClient,
+			baseURL+StayServiceCancelBookingProcedure,
+			connect.WithSchema(stayServiceMethods.ByName("CancelBooking")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -151,6 +182,9 @@ type stayServiceClient struct {
 	saveStay         *connect.Client[v1.SaveStayRequest, v1.SaveStayResponse]
 	unsaveStay       *connect.Client[v1.UnsaveStayRequest, v1.UnsaveStayResponse]
 	listSavedStayIds *connect.Client[v1.ListSavedStayIdsRequest, v1.ListSavedStayIdsResponse]
+	createBooking    *connect.Client[v1.CreateBookingRequest, v1.CreateBookingResponse]
+	listMyBookings   *connect.Client[v1.ListMyBookingsRequest, v1.ListMyBookingsResponse]
+	cancelBooking    *connect.Client[v1.CancelBookingRequest, v1.CancelBookingResponse]
 }
 
 // ListStays calls pmapa.stay.v1.StayService.ListStays.
@@ -193,6 +227,21 @@ func (c *stayServiceClient) ListSavedStayIds(ctx context.Context, req *connect.R
 	return c.listSavedStayIds.CallUnary(ctx, req)
 }
 
+// CreateBooking calls pmapa.stay.v1.StayService.CreateBooking.
+func (c *stayServiceClient) CreateBooking(ctx context.Context, req *connect.Request[v1.CreateBookingRequest]) (*connect.Response[v1.CreateBookingResponse], error) {
+	return c.createBooking.CallUnary(ctx, req)
+}
+
+// ListMyBookings calls pmapa.stay.v1.StayService.ListMyBookings.
+func (c *stayServiceClient) ListMyBookings(ctx context.Context, req *connect.Request[v1.ListMyBookingsRequest]) (*connect.Response[v1.ListMyBookingsResponse], error) {
+	return c.listMyBookings.CallUnary(ctx, req)
+}
+
+// CancelBooking calls pmapa.stay.v1.StayService.CancelBooking.
+func (c *stayServiceClient) CancelBooking(ctx context.Context, req *connect.Request[v1.CancelBookingRequest]) (*connect.Response[v1.CancelBookingResponse], error) {
+	return c.cancelBooking.CallUnary(ctx, req)
+}
+
 // StayServiceHandler is an implementation of the pmapa.stay.v1.StayService service.
 type StayServiceHandler interface {
 	// browsing — public
@@ -206,6 +255,10 @@ type StayServiceHandler interface {
 	SaveStay(context.Context, *connect.Request[v1.SaveStayRequest]) (*connect.Response[v1.SaveStayResponse], error)
 	UnsaveStay(context.Context, *connect.Request[v1.UnsaveStayRequest]) (*connect.Response[v1.UnsaveStayResponse], error)
 	ListSavedStayIds(context.Context, *connect.Request[v1.ListSavedStayIdsRequest]) (*connect.Response[v1.ListSavedStayIdsResponse], error)
+	// bookings
+	CreateBooking(context.Context, *connect.Request[v1.CreateBookingRequest]) (*connect.Response[v1.CreateBookingResponse], error)
+	ListMyBookings(context.Context, *connect.Request[v1.ListMyBookingsRequest]) (*connect.Response[v1.ListMyBookingsResponse], error)
+	CancelBooking(context.Context, *connect.Request[v1.CancelBookingRequest]) (*connect.Response[v1.CancelBookingResponse], error)
 }
 
 // NewStayServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -263,6 +316,24 @@ func NewStayServiceHandler(svc StayServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(stayServiceMethods.ByName("ListSavedStayIds")),
 		connect.WithHandlerOptions(opts...),
 	)
+	stayServiceCreateBookingHandler := connect.NewUnaryHandler(
+		StayServiceCreateBookingProcedure,
+		svc.CreateBooking,
+		connect.WithSchema(stayServiceMethods.ByName("CreateBooking")),
+		connect.WithHandlerOptions(opts...),
+	)
+	stayServiceListMyBookingsHandler := connect.NewUnaryHandler(
+		StayServiceListMyBookingsProcedure,
+		svc.ListMyBookings,
+		connect.WithSchema(stayServiceMethods.ByName("ListMyBookings")),
+		connect.WithHandlerOptions(opts...),
+	)
+	stayServiceCancelBookingHandler := connect.NewUnaryHandler(
+		StayServiceCancelBookingProcedure,
+		svc.CancelBooking,
+		connect.WithSchema(stayServiceMethods.ByName("CancelBooking")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/pmapa.stay.v1.StayService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case StayServiceListStaysProcedure:
@@ -281,6 +352,12 @@ func NewStayServiceHandler(svc StayServiceHandler, opts ...connect.HandlerOption
 			stayServiceUnsaveStayHandler.ServeHTTP(w, r)
 		case StayServiceListSavedStayIdsProcedure:
 			stayServiceListSavedStayIdsHandler.ServeHTTP(w, r)
+		case StayServiceCreateBookingProcedure:
+			stayServiceCreateBookingHandler.ServeHTTP(w, r)
+		case StayServiceListMyBookingsProcedure:
+			stayServiceListMyBookingsHandler.ServeHTTP(w, r)
+		case StayServiceCancelBookingProcedure:
+			stayServiceCancelBookingHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -320,4 +397,16 @@ func (UnimplementedStayServiceHandler) UnsaveStay(context.Context, *connect.Requ
 
 func (UnimplementedStayServiceHandler) ListSavedStayIds(context.Context, *connect.Request[v1.ListSavedStayIdsRequest]) (*connect.Response[v1.ListSavedStayIdsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("pmapa.stay.v1.StayService.ListSavedStayIds is not implemented"))
+}
+
+func (UnimplementedStayServiceHandler) CreateBooking(context.Context, *connect.Request[v1.CreateBookingRequest]) (*connect.Response[v1.CreateBookingResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("pmapa.stay.v1.StayService.CreateBooking is not implemented"))
+}
+
+func (UnimplementedStayServiceHandler) ListMyBookings(context.Context, *connect.Request[v1.ListMyBookingsRequest]) (*connect.Response[v1.ListMyBookingsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("pmapa.stay.v1.StayService.ListMyBookings is not implemented"))
+}
+
+func (UnimplementedStayServiceHandler) CancelBooking(context.Context, *connect.Request[v1.CancelBookingRequest]) (*connect.Response[v1.CancelBookingResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("pmapa.stay.v1.StayService.CancelBooking is not implemented"))
 }
