@@ -259,8 +259,12 @@ message Booking {
   int64 deposit = 15;
   string currency = 16;
 
-  // requested | cancelled. Hosts accepting or declining comes later; until then
-  // every booking a guest makes is a request that holds the dates.
+  // requested | confirmed | declined | cancelled.
+  //
+  // A booking starts as a request that already holds the dates — the host is
+  // answering, not allocating. `confirmed` is the host saying yes; `declined`
+  // is the host saying no and `cancelled` the guest withdrawing, and both free
+  // the nights for somebody else.
   string status = 17;
   int64 created_at = 18;
 
@@ -297,6 +301,30 @@ message CancelBookingRequest {
 }
 message CancelBookingResponse {}
 
+// The bookings other people have made against the caller's OWN listings —
+// the host's side of the same table. Without it a host publishes a place and
+// never learns that somebody asked for it.
+message ListStayBookingsRequest {
+  // Narrow to one listing. Empty = every listing the caller owns.
+  string stay_id = 1;
+  string cursor = 2;
+  int32 limit = 3;  // 1..200, default 50
+}
+message ListStayBookingsResponse {
+  repeated Booking bookings = 1;
+  string next_cursor = 2;
+}
+
+// The host's answer to a request on their own listing.
+message RespondToBookingRequest {
+  string id = 1;
+  // true → confirmed; false → declined, and the nights go back on sale.
+  bool accept = 2;
+}
+message RespondToBookingResponse {
+  Booking booking = 1;
+}
+
 service StayService {
   // browsing — public
   rpc ListStays(ListStaysRequest) returns (ListStaysResponse);
@@ -316,4 +344,8 @@ service StayService {
   rpc CreateBooking(CreateBookingRequest) returns (CreateBookingResponse);
   rpc ListMyBookings(ListMyBookingsRequest) returns (ListMyBookingsResponse);
   rpc CancelBooking(CancelBookingRequest) returns (CancelBookingResponse);
+
+  // bookings — the host's side
+  rpc ListStayBookings(ListStayBookingsRequest) returns (ListStayBookingsResponse);
+  rpc RespondToBooking(RespondToBookingRequest) returns (RespondToBookingResponse);
 }

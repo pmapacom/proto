@@ -2469,8 +2469,12 @@ class Booking extends $pb.GeneratedMessage {
   @$pb.TagNumber(16)
   void clearCurrency() => $_clearField(16);
 
-  /// requested | cancelled. Hosts accepting or declining comes later; until then
-  /// every booking a guest makes is a request that holds the dates.
+  /// requested | confirmed | declined | cancelled.
+  ///
+  /// A booking starts as a request that already holds the dates — the host is
+  /// answering, not allocating. `confirmed` is the host saying yes; `declined`
+  /// is the host saying no and `cancelled` the guest withdrawing, and both free
+  /// the nights for somebody else.
   @$pb.TagNumber(17)
   $core.String get status => $_getSZ(16);
   @$pb.TagNumber(17)
@@ -2924,6 +2928,278 @@ class CancelBookingResponse extends $pb.GeneratedMessage {
   static CancelBookingResponse? _defaultInstance;
 }
 
+/// The bookings other people have made against the caller's OWN listings —
+/// the host's side of the same table. Without it a host publishes a place and
+/// never learns that somebody asked for it.
+class ListStayBookingsRequest extends $pb.GeneratedMessage {
+  factory ListStayBookingsRequest({
+    $core.String? stayId,
+    $core.String? cursor,
+    $core.int? limit,
+  }) {
+    final result = create();
+    if (stayId != null) result.stayId = stayId;
+    if (cursor != null) result.cursor = cursor;
+    if (limit != null) result.limit = limit;
+    return result;
+  }
+
+  ListStayBookingsRequest._();
+
+  factory ListStayBookingsRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ListStayBookingsRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ListStayBookingsRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'pmapa.stay.v1'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'stayId')
+    ..aOS(2, _omitFieldNames ? '' : 'cursor')
+    ..aI(3, _omitFieldNames ? '' : 'limit')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ListStayBookingsRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ListStayBookingsRequest copyWith(
+          void Function(ListStayBookingsRequest) updates) =>
+      super.copyWith((message) => updates(message as ListStayBookingsRequest))
+          as ListStayBookingsRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ListStayBookingsRequest create() => ListStayBookingsRequest._();
+  @$core.override
+  ListStayBookingsRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ListStayBookingsRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ListStayBookingsRequest>(create);
+  static ListStayBookingsRequest? _defaultInstance;
+
+  /// Narrow to one listing. Empty = every listing the caller owns.
+  @$pb.TagNumber(1)
+  $core.String get stayId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set stayId($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasStayId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearStayId() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get cursor => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set cursor($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasCursor() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearCursor() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get limit => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set limit($core.int value) => $_setSignedInt32(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasLimit() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearLimit() => $_clearField(3);
+}
+
+class ListStayBookingsResponse extends $pb.GeneratedMessage {
+  factory ListStayBookingsResponse({
+    $core.Iterable<Booking>? bookings,
+    $core.String? nextCursor,
+  }) {
+    final result = create();
+    if (bookings != null) result.bookings.addAll(bookings);
+    if (nextCursor != null) result.nextCursor = nextCursor;
+    return result;
+  }
+
+  ListStayBookingsResponse._();
+
+  factory ListStayBookingsResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ListStayBookingsResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ListStayBookingsResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'pmapa.stay.v1'),
+      createEmptyInstance: create)
+    ..pPM<Booking>(1, _omitFieldNames ? '' : 'bookings',
+        subBuilder: Booking.create)
+    ..aOS(2, _omitFieldNames ? '' : 'nextCursor')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ListStayBookingsResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ListStayBookingsResponse copyWith(
+          void Function(ListStayBookingsResponse) updates) =>
+      super.copyWith((message) => updates(message as ListStayBookingsResponse))
+          as ListStayBookingsResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ListStayBookingsResponse create() => ListStayBookingsResponse._();
+  @$core.override
+  ListStayBookingsResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ListStayBookingsResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ListStayBookingsResponse>(create);
+  static ListStayBookingsResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $pb.PbList<Booking> get bookings => $_getList(0);
+
+  @$pb.TagNumber(2)
+  $core.String get nextCursor => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set nextCursor($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasNextCursor() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearNextCursor() => $_clearField(2);
+}
+
+/// The host's answer to a request on their own listing.
+class RespondToBookingRequest extends $pb.GeneratedMessage {
+  factory RespondToBookingRequest({
+    $core.String? id,
+    $core.bool? accept,
+  }) {
+    final result = create();
+    if (id != null) result.id = id;
+    if (accept != null) result.accept = accept;
+    return result;
+  }
+
+  RespondToBookingRequest._();
+
+  factory RespondToBookingRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory RespondToBookingRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'RespondToBookingRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'pmapa.stay.v1'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..aOB(2, _omitFieldNames ? '' : 'accept')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RespondToBookingRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RespondToBookingRequest copyWith(
+          void Function(RespondToBookingRequest) updates) =>
+      super.copyWith((message) => updates(message as RespondToBookingRequest))
+          as RespondToBookingRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RespondToBookingRequest create() => RespondToBookingRequest._();
+  @$core.override
+  RespondToBookingRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static RespondToBookingRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<RespondToBookingRequest>(create);
+  static RespondToBookingRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => $_clearField(1);
+
+  /// true → confirmed; false → declined, and the nights go back on sale.
+  @$pb.TagNumber(2)
+  $core.bool get accept => $_getBF(1);
+  @$pb.TagNumber(2)
+  set accept($core.bool value) => $_setBool(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasAccept() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearAccept() => $_clearField(2);
+}
+
+class RespondToBookingResponse extends $pb.GeneratedMessage {
+  factory RespondToBookingResponse({
+    Booking? booking,
+  }) {
+    final result = create();
+    if (booking != null) result.booking = booking;
+    return result;
+  }
+
+  RespondToBookingResponse._();
+
+  factory RespondToBookingResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory RespondToBookingResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'RespondToBookingResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'pmapa.stay.v1'),
+      createEmptyInstance: create)
+    ..aOM<Booking>(1, _omitFieldNames ? '' : 'booking',
+        subBuilder: Booking.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RespondToBookingResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RespondToBookingResponse copyWith(
+          void Function(RespondToBookingResponse) updates) =>
+      super.copyWith((message) => updates(message as RespondToBookingResponse))
+          as RespondToBookingResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RespondToBookingResponse create() => RespondToBookingResponse._();
+  @$core.override
+  RespondToBookingResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static RespondToBookingResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<RespondToBookingResponse>(create);
+  static RespondToBookingResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  Booking get booking => $_getN(0);
+  @$pb.TagNumber(1)
+  set booking(Booking value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasBooking() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearBooking() => $_clearField(1);
+  @$pb.TagNumber(1)
+  Booking ensureBooking() => $_ensure(0);
+}
+
 class StayServiceApi {
   final $pb.RpcClient _client;
 
@@ -2980,6 +3256,16 @@ class StayServiceApi {
           $pb.ClientContext? ctx, CancelBookingRequest request) =>
       _client.invoke<CancelBookingResponse>(ctx, 'StayService', 'CancelBooking',
           request, CancelBookingResponse());
+
+  /// bookings — the host's side
+  $async.Future<ListStayBookingsResponse> listStayBookings(
+          $pb.ClientContext? ctx, ListStayBookingsRequest request) =>
+      _client.invoke<ListStayBookingsResponse>(ctx, 'StayService',
+          'ListStayBookings', request, ListStayBookingsResponse());
+  $async.Future<RespondToBookingResponse> respondToBooking(
+          $pb.ClientContext? ctx, RespondToBookingRequest request) =>
+      _client.invoke<RespondToBookingResponse>(ctx, 'StayService',
+          'RespondToBooking', request, RespondToBookingResponse());
 }
 
 const $core.bool _omitFieldNames =
