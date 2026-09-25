@@ -1,0 +1,5 @@
+# Generated code under gen/ is VENDORED and committed (see .gitignore: every Go
+# module does `replace github.com/pmapa/proto/gen/go => ../proto/gen/go`, so the
+# build needs it present). Marking it generated keeps it out of pull-request
+# diffs and language stats without untracking it. Regenerate with `buf generate`.
+gen/** linguist-generated=true
