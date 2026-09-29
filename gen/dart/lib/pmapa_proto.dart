@@ -13,6 +13,7 @@ export 'src/pmapa/message/v1/message.pbenum.dart';
 export 'src/pmapa/notification/v1/notification.pb.dart';
 export 'src/pmapa/post/v1/post.pb.dart';
 export 'src/pmapa/post/v1/post.pbenum.dart';
+export 'src/pmapa/stay/v1/stay.pb.dart';
 export 'src/pmapa/travel/v1/travel.pb.dart';
 export 'src/pmapa/travel/v1/travel.pbenum.dart';
 export 'src/pmapa/store/v1/store.pb.dart';
