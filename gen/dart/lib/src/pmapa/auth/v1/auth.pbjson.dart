@@ -192,13 +192,15 @@ const LoginWithOidcResponse$json = {
       '6': '.pmapa.auth.v1.TokenPair',
       '10': 'tokens'
     },
+    {'1': 'is_new_user', '3': 3, '4': 1, '5': 8, '10': 'isNewUser'},
   ],
 };
 
 /// Descriptor for `LoginWithOidcResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List loginWithOidcResponseDescriptor = $convert.base64Decode(
     'ChVMb2dpbldpdGhPaWRjUmVzcG9uc2USFwoHdXNlcl9pZBgBIAEoCVIGdXNlcklkEjAKBnRva2'
-    'VucxgCIAEoCzIYLnBtYXBhLmF1dGgudjEuVG9rZW5QYWlyUgZ0b2tlbnM=');
+    'VucxgCIAEoCzIYLnBtYXBhLmF1dGgudjEuVG9rZW5QYWlyUgZ0b2tlbnMSHgoLaXNfbmV3X3Vz'
+    'ZXIYAyABKAhSCWlzTmV3VXNlcg==');
 
 @$core.Deprecated('Use refreshRequestDescriptor instead')
 const RefreshRequest$json = {

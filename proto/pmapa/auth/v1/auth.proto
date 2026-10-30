@@ -69,6 +69,10 @@ message LoginWithOidcRequest {
 message LoginWithOidcResponse {
   string user_id = 1;
   TokenPair tokens = 2;
+  // True only on a first social sign-in — the call that created the account.
+  // Auth has already seeded a default handle derived from the email; the client
+  // shows handle onboarding so the user can keep or change it.
+  bool is_new_user = 3;
 }
 
 // Exchange a valid refresh token for a new access token (and a rotated refresh

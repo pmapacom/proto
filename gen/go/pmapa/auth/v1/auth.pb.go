@@ -497,9 +497,13 @@ func (x *LoginWithOidcRequest) GetDevice() *DeviceInfo {
 }
 
 type LoginWithOidcResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Tokens        *TokenPair             `protobuf:"bytes,2,opt,name=tokens,proto3" json:"tokens,omitempty"`
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	UserId string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Tokens *TokenPair             `protobuf:"bytes,2,opt,name=tokens,proto3" json:"tokens,omitempty"`
+	// True only on a first social sign-in — the call that created the account.
+	// Auth has already seeded a default handle derived from the email; the client
+	// shows handle onboarding so the user can keep or change it.
+	IsNewUser     bool `protobuf:"varint,3,opt,name=is_new_user,json=isNewUser,proto3" json:"is_new_user,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -546,6 +550,13 @@ func (x *LoginWithOidcResponse) GetTokens() *TokenPair {
 		return x.Tokens
 	}
 	return nil
+}
+
+func (x *LoginWithOidcResponse) GetIsNewUser() bool {
+	if x != nil {
+		return x.IsNewUser
+	}
+	return false
 }
 
 // Exchange a valid refresh token for a new access token (and a rotated refresh
@@ -1554,10 +1565,11 @@ const file_pmapa_auth_v1_auth_proto_rawDesc = "" +
 	"\x14LoginWithOidcRequest\x127\n" +
 	"\bprovider\x18\x01 \x01(\x0e2\x1b.pmapa.auth.v1.OidcProviderR\bprovider\x12\x19\n" +
 	"\bid_token\x18\x02 \x01(\tR\aidToken\x121\n" +
-	"\x06device\x18\x03 \x01(\v2\x19.pmapa.auth.v1.DeviceInfoR\x06device\"b\n" +
+	"\x06device\x18\x03 \x01(\v2\x19.pmapa.auth.v1.DeviceInfoR\x06device\"\x82\x01\n" +
 	"\x15LoginWithOidcResponse\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x120\n" +
-	"\x06tokens\x18\x02 \x01(\v2\x18.pmapa.auth.v1.TokenPairR\x06tokens\"5\n" +
+	"\x06tokens\x18\x02 \x01(\v2\x18.pmapa.auth.v1.TokenPairR\x06tokens\x12\x1e\n" +
+	"\vis_new_user\x18\x03 \x01(\bR\tisNewUser\"5\n" +
 	"\x0eRefreshRequest\x12#\n" +
 	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"C\n" +
 	"\x0fRefreshResponse\x120\n" +

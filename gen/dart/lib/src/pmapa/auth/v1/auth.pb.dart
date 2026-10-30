@@ -573,10 +573,12 @@ class LoginWithOidcResponse extends $pb.GeneratedMessage {
   factory LoginWithOidcResponse({
     $core.String? userId,
     TokenPair? tokens,
+    $core.bool? isNewUser,
   }) {
     final result = create();
     if (userId != null) result.userId = userId;
     if (tokens != null) result.tokens = tokens;
+    if (isNewUser != null) result.isNewUser = isNewUser;
     return result;
   }
 
@@ -596,6 +598,7 @@ class LoginWithOidcResponse extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'userId')
     ..aOM<TokenPair>(2, _omitFieldNames ? '' : 'tokens',
         subBuilder: TokenPair.create)
+    ..aOB(3, _omitFieldNames ? '' : 'isNewUser')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -637,6 +640,18 @@ class LoginWithOidcResponse extends $pb.GeneratedMessage {
   void clearTokens() => $_clearField(2);
   @$pb.TagNumber(2)
   TokenPair ensureTokens() => $_ensure(1);
+
+  /// True only on a first social sign-in — the call that created the account.
+  /// Auth has already seeded a default handle derived from the email; the client
+  /// shows handle onboarding so the user can keep or change it.
+  @$pb.TagNumber(3)
+  $core.bool get isNewUser => $_getBF(2);
+  @$pb.TagNumber(3)
+  set isNewUser($core.bool value) => $_setBool(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasIsNewUser() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearIsNewUser() => $_clearField(3);
 }
 
 /// Exchange a valid refresh token for a new access token (and a rotated refresh
